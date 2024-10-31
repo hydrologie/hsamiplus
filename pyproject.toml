@@ -8,6 +8,7 @@ authors = [
   {name = "Didier Haguma", email = "dhaguma@hotmail.com"}
 ]
 maintainers = [
+  {name = "Didier Haguma", email = "dhaguma@hotmail.com"},
   {name = "Trevor James Smith", email = "smith.trevorj@ouranos.ca"}
 ]
 readme = {file = "README.rst", content-type = "text/x-rst"}
