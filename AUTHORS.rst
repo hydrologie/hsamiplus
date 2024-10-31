@@ -5,12 +5,12 @@ Credits
 Development Lead
 ----------------
 
-* Didier Haguma <dhaguma@hotmail.com> `@hydrologie <https://github.com/hydrologie>`_
+* Didier Haguma <dhaguma@hotmail.com> `@dhagum <https://github.com/dhagum>`_
 
 Co-Developers
 -------------
 
-None yet. Why not be the first?
+* Trevor James Smith <smith.trevorj@ouranos.ca> `@Zeitsperre <https://github.com/Zeitsperre>`_
 
 Contributors
 ------------
