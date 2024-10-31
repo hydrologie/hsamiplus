@@ -1,0 +1,154 @@
+name: hsamiplus Testing Suite
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .cruft.json
+      - CHANGELOG.rst
+      - README.rst
+      - pyproject.toml
+      - tests/test_hsamiplus.py
+      - src/hsamiplus/__init__.py
+  pull_request:
+
+concurrency:
+  # For a given workflow, if we push to the same branch, cancel all previous builds on that branch except on master.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint (Python${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.x"
+    steps:
+      - name: Harden Runner
+        uses:  step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        with:
+          egress-policy: audit
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Python${{ matrix.python-version }}
+        uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install CI libraries
+        run: |
+          python -m pip install --require-hashes -r CI/requirements_ci.txt
+      - name: Run linting suite
+        run: |
+          python -m tox -e lint
+
+  test-pypi:
+    name: Test with Python${{ matrix.python-version }} (tox, ${{ matrix.os }})
+    needs: lint
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest' ]
+        python-version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+    steps:
+      - name: Harden Runner
+        uses:  step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        with:
+          egress-policy: audit
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Python${{ matrix.python-version }}
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install CI libraries
+        run: |
+          python -m pip install --require-hashes -r CI/requirements_ci.txt
+      - name: Environment Caching
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        with:
+          path: .tox
+          key: ${{ matrix.os }}-Python${{ matrix.python-version }}-${{ hashFiles('pyproject.toml', 'tox.ini') }}
+      - name: Test with tox
+        run: |
+          python -m tox
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: run-${{ matrix.python-version }}
+          COVERALLS_PARALLEL: true
+          COVERALLS_SERVICE_NAME: github
+
+  test-conda:
+    name: Test with Python${{ matrix.python-version }} (Anaconda, ${{ matrix.os }})
+    needs: lint
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest' ]
+        python-version: [ "3.9", "3.10", "3.11", "3.12" ]
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Harden Runner
+        uses:  step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        with:
+          egress-policy: audit
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Setup Conda (Micromamba) with Python${{ matrix.python-version }}
+        uses: mamba-org/setup-micromamba@617811f69075e3fd3ae68ca64220ad065877f246 # v2.0.0
+        with:
+          cache-downloads: true
+          environment-file: environment-dev.yml
+          create-args: >-
+            python=${{ matrix.python-version }}
+      - name: Conda and Mamba versions
+        run: |
+          echo "micromamba $(micromamba --version)"
+      - name: Install hsamiplus
+        run: |
+          python -m pip install --no-deps .
+      - name: Check versions
+        run: |
+          conda list
+          python -m pip check || true
+      - name: Test with pytest
+        run: |
+          python -m pytest --cov hsamiplus
+      - name: Report Coverage
+        run: |
+          python -m coveralls
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: run-Python${{ matrix.python-version }}-conda
+          COVERALLS_PARALLEL: true
+          COVERALLS_SERVICE_NAME: github
+
+  finish:
+    needs:
+      - test-pypi
+      - test-conda
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses:  step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@cfd0633edbd2411b532b808ba7a8b5e04f76d2c8 # v2.3.4
+        with:
+          parallel-finished: true
