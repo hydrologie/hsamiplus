@@ -1,4 +1,4 @@
-name: hsamiplus
+name: hsamiplus-dev
 channels:
   - conda-forge
 dependencies:
@@ -8,7 +8,7 @@ dependencies:
   - bump-my-version >=0.27.0 # conda package is behind
   - watchdog >=4.0.0
   - flake8 >=7.1.1
-  - flake8-rst-docstrings >=0.3.0
+  - flake8-rst-docstrings 
   - flit >=3.9.0,<4.0
   - tox >=4.23.2
   - coverage >=7.5.0
