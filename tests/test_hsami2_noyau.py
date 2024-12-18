@@ -3,8 +3,7 @@ import unittest
 
 import numpy as np
 
-sys.path.append("../src/hsamiplus")
-from hsami2_noyau import hsami2_noyau
+from hsamiplus import hsami2_noyau
 
 
 class TestHsami2Noyau(unittest.TestCase):

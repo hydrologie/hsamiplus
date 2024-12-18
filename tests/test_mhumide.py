@@ -3,8 +3,7 @@ import unittest
 
 import numpy as np
 
-sys.path.append("../src/hsamiplus")
-from hsami_mhumide import hsami_mhumide
+from hsamiplus import hsami_mhumide
 
 
 class TestHsamiMhumide(unittest.TestCase):

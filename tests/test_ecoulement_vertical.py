@@ -1,8 +1,7 @@
 import sys
 import unittest
 
-sys.path.append("../src/hsamiplus")
-from hsami_ecoulement_vertical import hsami_ecoulement_vertical, scs_cn, vidange_nappe
+from hsamiplus import hsami_ecoulement_vertical, scs_cn, vidange_nappe
 
 
 class TestHsamiEcoulementVertical(unittest.TestCase):

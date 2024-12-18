@@ -4,8 +4,7 @@ import sys
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
-sys.path.append("../src/hsamiplus")
-from hsamibin import hsamibin
+from hsamiplus import hsamibin
 
 
 class TestHsamibin(unittest.TestCase):
@@ -31,7 +30,11 @@ class TestHsamibin(unittest.TestCase):
         output_filename = f"output_{date_str}.json"
         mock_open.assert_called_with(f"test_path/{output_filename}", "w")
         handle = mock_open()
-        handle.write.assert_called_once_with(json.dumps({"S": "S_value", "etats": "etats_value", "deltas": "deltas_value"}))
+        handle.write.assert_called_once_with(
+            json.dumps(
+                {"S": "S_value", "etats": "etats_value", "deltas": "deltas_value"}
+            )
+        )
 
         # Check the return values
         self.assertEqual(S, "S_value")

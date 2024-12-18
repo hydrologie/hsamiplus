@@ -3,9 +3,7 @@ import sys
 import unittest
 from pathlib import Path
 
-sys.path.append("../src/hsamiplus")
-
-from hsami2 import hsami2
+from hsamiplus import hsami2
 
 
 class TestHsami2(unittest.TestCase):

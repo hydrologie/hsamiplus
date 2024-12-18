@@ -3,9 +3,7 @@ import unittest
 
 import numpy as np
 
-sys.path.append("../src/hsamiplus")
-
-from hsami_ecoulement_horizontal import hsami_ecoulement_horizontal
+from hsamiplus import hsami_ecoulement_horizontal
 
 
 class TestHsamiEcoulementHorizontal(unittest.TestCase):
@@ -82,7 +80,9 @@ class TestHsamiEcoulementHorizontal(unittest.TestCase):
         self.assertAlmostEqual(apport[3], self.apport[3], places=2)
         self.assertAlmostEqual(apport[4], self.apport[4], places=2)
         self.assertAlmostEqual(apport[5], self.apport[5], places=2)
-        self.assertAlmostEqual(np.mean(eau_hydrogrammes), np.mean(self.eau_hydrogrammes), places=2)
+        self.assertAlmostEqual(
+            np.mean(eau_hydrogrammes), np.mean(self.eau_hydrogrammes), places=2
+        )
 
     def test_hsami_ecoulement_horizontal_no_mhumide(self):
         self.modules["mhumide"] = 0

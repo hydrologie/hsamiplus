@@ -3,9 +3,7 @@ import unittest
 
 import numpy as np
 
-sys.path.append("../src/hsamiplus")
-
-from hsami_interception import (
+from hsamiplus import (
     albedo_een,
     calcul_densite_neige,
     conductivite_neige,
@@ -204,7 +202,9 @@ class TestHsamiInterception(unittest.TestCase):
         self.assertIsNotNone(result)
 
     def test_pluie_neige(self):
-        result = pluie_neige(self.t_max, self.t_min, self.pluie / 100 + self.neige / 100)
+        result = pluie_neige(
+            self.t_max, self.t_min, self.pluie / 100 + self.neige / 100
+        )
         self.assertIsNotNone(result)
 
 
