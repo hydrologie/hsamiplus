@@ -20,5 +20,6 @@ dependencies:
   - blackdoc ==0.3.9
   - isort ==5.13.2
   - numpydoc >=1.8.0
+  - numpy >=1.23
   - pre-commit >=3.5.0
   - ruff >=0.7.0

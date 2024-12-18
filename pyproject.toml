@@ -32,7 +32,8 @@ classifiers = [
 ]
 dynamic = ["description", "version"]
 dependencies = [
-  "typer >=0.12.3"
+  "typer >=0.12.3",
+  "numpy >=1.23"
 ]
 
 [project.optional-dependencies]
