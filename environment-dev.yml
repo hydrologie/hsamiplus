@@ -1,4 +1,4 @@
-name: hsamiplus
+name: hsamiplus-dev
 channels:
   - conda-forge
 dependencies:
