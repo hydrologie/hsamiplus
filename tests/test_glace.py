@@ -53,7 +53,9 @@ class TestHsamiGlace(unittest.TestCase):
 
     def test_hsami_glace_no_reservoir(self):
         self.modules["reservoir"] = 0
-        glace_vers_reservoir, bassin_vers_reservoir, etats = hsami_glace(self.modules, self.superficie, self.etats)
+        glace_vers_reservoir, bassin_vers_reservoir, etats = hsami_glace(
+            self.modules, self.superficie, self.etats
+        )
         self.assertEqual(glace_vers_reservoir, 0)
         self.assertEqual(bassin_vers_reservoir, 0)
         self.assertEqual(etats["reservoir_epaisseur_glace"], 0)

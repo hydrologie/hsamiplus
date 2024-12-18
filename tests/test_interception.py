@@ -204,7 +204,9 @@ class TestHsamiInterception(unittest.TestCase):
         self.assertIsNotNone(result)
 
     def test_pluie_neige(self):
-        result = pluie_neige(self.t_max, self.t_min, self.pluie / 100 + self.neige / 100)
+        result = pluie_neige(
+            self.t_max, self.t_min, self.pluie / 100 + self.neige / 100
+        )
         self.assertIsNotNone(result)
 
 
