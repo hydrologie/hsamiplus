@@ -6,7 +6,7 @@ import datetime
 import json
 from pathlib import Path
 
-from hsami2 import hsami2
+from .hsami2 import hsami2
 
 
 def hsamibin(path, filename):

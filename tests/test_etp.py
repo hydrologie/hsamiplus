@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from hsamiplus import (
+from hsamiplus.hsami_etp import (
     etp_chaleur_lat_vaporisation,
     etp_duree_jour,
     etp_m_courbe_pression,
@@ -13,7 +13,7 @@ from hsamiplus import (
     etp_rayonnement_net,
     etp_rayonnement_temps_clair,
     etp_td_linacre,
-    hsami_etp,
+    hsami_etp
 )
 
 

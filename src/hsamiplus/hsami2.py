@@ -5,7 +5,7 @@ from __future__ import annotations
 from copy import copy
 
 import numpy as np
-from hsami2_noyau import hsami2_noyau
+from .hsami2_noyau import hsami2_noyau
 
 
 def hsami2(projet):
