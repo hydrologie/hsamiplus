@@ -1,7 +1,11 @@
 import sys
 import unittest
 
-from hsamiplus.hsami_ecoulement_vertical import hsami_ecoulement_vertical, scs_cn, vidange_nappe
+from hsamiplus.hsami_ecoulement_vertical import (
+    hsami_ecoulement_vertical,
+    scs_cn,
+    vidange_nappe,
+)
 
 
 class TestHsamiEcoulementVertical(unittest.TestCase):

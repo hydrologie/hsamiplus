@@ -13,7 +13,7 @@ from hsamiplus.hsami_etp import (
     etp_rayonnement_net,
     etp_rayonnement_temps_clair,
     etp_td_linacre,
-    hsami_etp
+    hsami_etp,
 )
 
 
