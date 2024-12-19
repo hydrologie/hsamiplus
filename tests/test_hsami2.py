@@ -10,7 +10,7 @@ from hsamiplus.hsami2 import hsami2
 class TestHsami2(unittest.TestCase):
     def setUp(self):
 
-        path = Path.resolve(Path.parent(Path.parent(__file__))) / "data"
+        path = Path(Path.resolve(Path.parent(Path.parent(__file__)))) / "data"
         filename = "projet.json"
 
         self.etp_modules = [
