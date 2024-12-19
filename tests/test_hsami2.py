@@ -98,13 +98,13 @@ class TestHsami2(unittest.TestCase):
         )
 
     def test_hsami2_output_structure(self):
-        self.assertIsInstance(self.S, dict)
+        self.assertIsInstance(self.s, dict)
         self.assertIsInstance(self.etats, dict)
         self.assertIsInstance(self.deltas, dict)
 
     def test_hsami2_simulation_length(self):
         nb_pas_total = len(self.projet["meteo"]["bassin"])
-        self.assertEqual(len(self.S["Qtotal"]), nb_pas_total)
+        self.assertEqual(len(self.s["Qtotal"]), nb_pas_total)
         self.assertEqual(len(self.etats["neige_au_sol"]), nb_pas_total)
         self.assertEqual(len(self.deltas["total"]), nb_pas_total)
 
