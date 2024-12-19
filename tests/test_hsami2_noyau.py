@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from hsamiplus import hsami2_noyau
+from hsamiplus.hsami2_noyau import hsami2_noyau
 
 
 class TestHsami2Noyau(unittest.TestCase):

@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from hsamiplus import hsami_ecoulement_horizontal
+from hsamiplus.hsami_ecoulement_horizontal import hsami_ecoulement_horizontal
 
 
 class TestHsamiEcoulementHorizontal(unittest.TestCase):

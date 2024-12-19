@@ -3,7 +3,7 @@ import sys
 import unittest
 from pathlib import Path
 
-from hsamiplus import hsami2
+from hsamiplus.hsami2 import hsami2
 
 
 class TestHsami2(unittest.TestCase):

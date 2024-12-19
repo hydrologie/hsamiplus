@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from hsamiplus import hsami_glace
+from hsamiplus.hsami_glace import hsami_glace
 
 
 class TestHsamiGlace(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestHsamiGlace(unittest.TestCase):
             "eeg": np.zeros(5000),
             "neige_au_sol": 4.50,
             "dernier_gel": 0,
-            "cumdegGel": -530.2250,
+            "cumdeggel": -530.2250,
             "obj_gel": -200.0,
             "hsami": {
                 "couvert_neige": [0.1, 0.1, 0.1],

@@ -514,7 +514,7 @@ def vidange_nappe(
 
 
 # Green-Ampt
-def green_ampt(eau_surface, ks, psi, sol_max, sol, nb_pas, gel, neige_au_sol, args):
+def green_ampt(eau_surface, ks, psi, sol_max, sol, nb_pas, gel, neige_au_sol, *args):
     r"""
     Modele de Green-Ampt.
 
@@ -536,7 +536,7 @@ def green_ampt(eau_surface, ks, psi, sol_max, sol, nb_pas, gel, neige_au_sol, ar
         Gel dans la premiére couche de sol (cm).
     neige_au_sol : float
         Équivalent en eau de la neige au sol (cm).
-    args : list
+    \*args : list
         Porosité de la premiére couches de sol si 3couches est utilisé (cm3/cm3).
 
     Returns

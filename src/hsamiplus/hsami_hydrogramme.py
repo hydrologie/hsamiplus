@@ -33,14 +33,16 @@ def hsami_hydrogramme(mode, forme, pas_temps_par_jour, memoire):
     et tronqué aprés "memoire" jours.
     """
     n = int(memoire * pas_temps_par_jour)
-    if isinstance(mode, np.ndarray):
-        t = np.tile(np.arange(n + 1), (mode.shape[1], mode.shape[0], 1))
+    if isinstance(mode, list):
+        lm = len(mode)
+        t = np.tile(np.arange(1, n + 1), (lm, 1))
     else:
         t = np.arange(1, n + 1)
+        lm = 1
 
     mode = np.tile(mode, (n, 1)).transpose(1, 0)
     forme = np.tile(forme, (n, 1)).transpose(1, 0)
     h = t ** (mode * forme) * np.exp(-forme / pas_temps_par_jour * t)
-    h = h / np.tile(np.sum(h, axis=1), n)
+    h = h / np.repeat(np.sum(h, axis=1), n).reshape(lm, n)
 
     return h

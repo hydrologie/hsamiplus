@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from hsamiplus import hsami_ruissellement_surface
+from hsamiplus.hsami_ruissellement_surface import hsami_ruissellement_surface
 
 
 class TestHsamiRuissellementSurface(unittest.TestCase):

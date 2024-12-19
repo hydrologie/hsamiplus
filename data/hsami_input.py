@@ -240,7 +240,7 @@ if __name__ == "__main__":
     data_dir = "."
     basin_file = "bassin_versant_info.txt"
     param_file = "parametres.txt"
-    projet_file = "projet_" + day.strftime("%Y%m%d") + ".json"
+    projet_file = "projet_1_" + day.strftime("%Y%m%d") + ".json"
 
     basin_file = Path(data_dir) / basin_file
     param_file = Path(data_dir) / param_file

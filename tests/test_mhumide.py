@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from hsamiplus import hsami_mhumide
+from hsamiplus.hsami_mhumide import hsami_mhumide
 
 
 class TestHsamiMhumide(unittest.TestCase):

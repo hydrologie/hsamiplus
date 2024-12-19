@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 
 
-def hsami_glace(modules, superficie, etats, varargin):
+def hsami_glace(modules, superficie, etats, *varargin):
     r"""
     Glace.
 
@@ -17,7 +17,7 @@ def hsami_glace(modules, superficie, etats, varargin):
         La superficie du bassin versan et  la uuperficie moyenne du réservoir.
     etats : dict
         États du bassin versants et du réservoir.
-    varargin : list
+    \*varargin : list
         Varargin{1} : list
             Données météorologiques pour la simulation (meteo).
         Varargin{2} : dict

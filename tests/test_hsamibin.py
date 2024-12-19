@@ -4,7 +4,7 @@ import sys
 import unittest
 from unittest.mock import MagicMock, mock_open, patch
 
-from hsamiplus import hsamibin
+from hsamiplus.hsamibin import hsamibin
 
 
 class TestHsamibin(unittest.TestCase):

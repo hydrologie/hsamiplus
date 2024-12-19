@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from hsamiplus import (
+from hsamiplus.hsami_interception import (
     albedo_een,
     calcul_densite_neige,
     conductivite_neige,
