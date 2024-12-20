@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+from numba import jit
 
 
 def hsami_interception(nb_pas, jj, param, meteo, etp, etat, modules, physio):
@@ -292,6 +293,7 @@ def dj_hsami(  # noqa: C901
     # Gestion de la portion en eau libre du réservoir
     # -----------------------------------------------
     # La pluie et la neige tombent dans le réservoir
+
     apport_vertical[3] = meteo["reservoir"][2] + meteo["reservoir"][3]
 
     # On tient le compte du nombre de jours sans neige
@@ -554,85 +556,141 @@ def dj_hsami(  # noqa: C901
 
             # On vérifie si toute la neige a fondue, si oui, on fait
             # fondre la glace (s'il y en a)
-            for i_g in range(len(eeg)):
-                if neige_au_sol == 0 and eeg[i_g] > 0:
-                    # Estimation de l'accélération de la fonte causée par la radiation solaire
-                    effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
-                        soleil / 0.52
-                    ) ** 0.33
 
-                    # On estime la fonte pour le jour et la nuit.
-                    # Les taux de fonte de la neige sont multipliés
-                    # par 1.5 pour la glace selon Braithwaite (1995)
-                    # et Singh et al (1999).
-                    fonte_jour = (
-                        dt_max * 1.5 * taux_fonte_jour * effet_radiation * duree
+            # for i_g in range(len(eeg)):
+            #     if neige_au_sol == 0 and eeg[i_g] > 0:
+            #         # Estimation de l'accélération de la fonte causée par la radiation solaire
+            #         effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
+            #             soleil / 0.52
+            #         ) ** 0.33
+
+            #         # On estime la fonte pour le jour et la nuit.
+            #         # Les taux de fonte de la neige sont multipliés
+            #         # par 1.5 pour la glace selon Braithwaite (1995)
+            #         # et Singh et al (1999).
+            #         fonte_jour = (
+            #             dt_max * 1.5 * taux_fonte_jour * effet_radiation * duree
+            #         )
+            #         fonte_nuit = dt_min * 1.5 * taux_fonte_nuit * duree
+
+            #         potentiel_fonte = fonte_jour + fonte_nuit
+
+            #         # On accentue la fonte en tenant compte de la chaleur de la pluie
+            #         t_moy = 2 / 3 * t_max + 1 / 3 * t_min
+
+            #         if t_moy > temp_ref_pluie:
+            #             effet_chaleur_pluie = (
+            #                 0.0126 * (t_moy - temp_ref_pluie) * meteo.reservoir(3)
+            #             )
+            #             potentiel_fonte = potentiel_fonte + effet_chaleur_pluie
+
+            #         # Fonte réelle en fonction de la glace disponible
+            #         # (Si le potentiel de fonte est inférieur é 0, on ne
+            #         # fait pas geler la glace puisque la glace ne contient pas d'eau libre é geler)
+            #         if potentiel_fonte > 0:
+            #             if potentiel_fonte >= eeg[i_g]:
+            #                 apport_vertical[4] = apport_vertical[4] + eeg[i_g]
+            #                 eeg[i_g] = 0
+            #             else:
+            #                 apport_vertical[4] = apport_vertical[4] + potentiel_fonte
+            #                 eeg[i_g] = eeg[i_g] - potentiel_fonte
+
+            mask_eeg = (eeg > 0) & (neige_au_sol == 0)
+            if np.any(mask_eeg):
+                # Estimation de l'accélération de la fonte causée par la radiation solaire
+                effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
+                    soleil / 0.52
+                ) ** 0.33
+
+                # On estime la fonte pour le jour et la nuit.
+                # Les taux de fonte de la neige sont multipliés
+                # par 1.5 pour la glace selon Braithwaite (1995)
+                # et Singh et al (1999).
+                fonte_jour = dt_max * 1.5 * taux_fonte_jour * effet_radiation * duree
+                fonte_nuit = dt_min * 1.5 * taux_fonte_nuit * duree
+
+                potentiel_fonte = fonte_jour + fonte_nuit
+
+                # On accentue la fonte en tenant compte de la chaleur de la pluie
+                t_moy = 2 / 3 * t_max + 1 / 3 * t_min
+
+                if t_moy > temp_ref_pluie:
+                    effet_chaleur_pluie = (
+                        0.0126 * (t_moy - temp_ref_pluie) * meteo.reservoir(3)
                     )
-                    fonte_nuit = dt_min * 1.5 * taux_fonte_nuit * duree
+                    potentiel_fonte = potentiel_fonte + effet_chaleur_pluie
 
-                    potentiel_fonte = fonte_jour + fonte_nuit
-
-                    # On accentue la fonte en tenant compte de la chaleur de la pluie
-                    t_moy = 2 / 3 * t_max + 1 / 3 * t_min
-
-                    if t_moy > temp_ref_pluie:
-                        effet_chaleur_pluie = (
-                            0.0126 * (t_moy - temp_ref_pluie) * meteo.reservoir(3)
-                        )
-                        potentiel_fonte = potentiel_fonte + effet_chaleur_pluie
-
-                    # Fonte réelle en fonction de la glace disponible
-                    # (Si le potentiel de fonte est inférieur é 0, on ne
-                    # fait pas geler la glace puisque la glace ne contient pas d'eau libre é geler)
-                    if potentiel_fonte > 0:
-                        if potentiel_fonte >= eeg[i_g]:
-                            apport_vertical[4] = apport_vertical[4] + eeg[i_g]
-                            eeg[i_g] = 0
-                        else:
-                            apport_vertical[4] = apport_vertical[4] + potentiel_fonte
-                            eeg[i_g] = eeg[i_g] - potentiel_fonte
+                # Fonte réelle en fonction de la glace disponible
+                # (Si le potentiel de fonte est inférieur é 0, on ne
+                # fait pas geler la glace puisque la glace ne contient pas d'eau libre é geler)
+                if potentiel_fonte > 0:
+                    mask_pf_eeg = potentiel_fonte >= eeg
+                    apport_vertical[4] = apport_vertical[4] + np.sum(eeg[mask_pf_eeg])
+                    apport_vertical[4] = apport_vertical[4] + potentiel_fonte * np.sum(
+                        mask_pf_eeg
+                    )
+                    eeg[mask_pf_eeg] = 0
+                    eeg[~mask_pf_eeg] = eeg[~mask_pf_eeg] - potentiel_fonte
 
         else:
             eau_surface = pluie
             # Il n'y a pas de neige, mais il peut y avoir de la glace é fondre
-            for i_g in range(len(eeg)):
-                if eeg[i_g] > 0:
-                    # Estimation de l'accélération de la fonte causée par la radiation solaire
-                    effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
-                        soleil / 0.52
-                    ) ** 0.33
 
-                    # On estime la fonte pour le jour et la nuit.
-                    # Les taux de fonte de la neige sont multipliés
-                    # par 1.5 pour la glace selon Braithwaite (1995)
-                    # et Singh et al (1999).
-                    fonte_jour = (
-                        dt_max * 1.5 * taux_fonte_jour * effet_radiation * duree
+            # for i_g in range(len(eeg)):
+            #     if eeg[i_g] > 0:
+            #         # Estimation de l'accélération de la fonte causée par la radiation solaire
+            #         effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
+            #             soleil / 0.52
+            #         ) ** 0.33
+
+            #         # On estime la fonte pour le jour et la nuit.
+            #         # Les taux de fonte de la neige sont multipliés
+            #         # par 1.5 pour la glace selon Braithwaite (1995)
+            #         # et Singh et al (1999).
+            #         fonte_jour = (
+            #             dt_max * 1.5 * taux_fonte_jour * effet_radiation * duree
+            #         )
+            #         fonte_nuit = dt_min * 1.5 * taux_fonte_nuit * duree
+
+            #         potentiel_fonte = fonte_jour + fonte_nuit
+
+            #         # On accentue la fonte en tenant compte de la chaleur de la pluie
+            #         t_moy = 2 / 3 * t_max + 1 / 3 * t_min
+
+            #         if t_moy > temp_ref_pluie:
+            #             effet_chaleur_pluie = (
+            #                 0.0126 * (t_moy - temp_ref_pluie) * meteo["reservoir"][2]
+            #             )
+            #             potentiel_fonte = potentiel_fonte + effet_chaleur_pluie
+
+            #         # Fonte réelle en fonction de la glace disponible
+            #         # (Si le potentiel de fonte est inférieur é 0, on ne
+            #         # fait pas geler la glace puisque la glace ne
+            #         # contient pas d'eau libre é geler)
+            #         if potentiel_fonte > 0:
+            #             if potentiel_fonte >= eeg[i_g]:
+            #                 apport_vertical[4] = apport_vertical[4] + eeg[i_g]
+            #                 eeg[i_g] = 0
+            #             else:
+            #                 apport_vertical[4] = apport_vertical[4] + potentiel_fonte
+            #                 eeg[i_g] = eeg[i_g] - potentiel_fonte
+
+            mask_eeg = eeg > 0
+            if np.any(mask_eeg):
+                if t_moy > temp_ref_pluie:
+                    effet_chaleur_pluie = (
+                        0.0126 * (t_moy - temp_ref_pluie) * meteo.reservoir(3)
                     )
-                    fonte_nuit = dt_min * 1.5 * taux_fonte_nuit * duree
+                    potentiel_fonte = potentiel_fonte + effet_chaleur_pluie
 
-                    potentiel_fonte = fonte_jour + fonte_nuit
-
-                    # On accentue la fonte en tenant compte de la chaleur de la pluie
-                    t_moy = 2 / 3 * t_max + 1 / 3 * t_min
-
-                    if t_moy > temp_ref_pluie:
-                        effet_chaleur_pluie = (
-                            0.0126 * (t_moy - temp_ref_pluie) * meteo["reservoir"][2]
-                        )
-                        potentiel_fonte = potentiel_fonte + effet_chaleur_pluie
-
-                    # Fonte réelle en fonction de la glace disponible
-                    # (Si le potentiel de fonte est inférieur é 0, on ne
-                    # fait pas geler la glace puisque la glace ne
-                    # contient pas d'eau libre é geler)
-                    if potentiel_fonte > 0:
-                        if potentiel_fonte >= eeg[i_g]:
-                            apport_vertical[4] = apport_vertical[4] + eeg[i_g]
-                            eeg[i_g] = 0
-                        else:
-                            apport_vertical[4] = apport_vertical[4] + potentiel_fonte
-                            eeg[i_g] = eeg[i_g] - potentiel_fonte
+                if potentiel_fonte > 0:
+                    mask_pf_eeg = potentiel_fonte >= eeg
+                    apport_vertical[4] = apport_vertical[4] + np.sum(eeg[mask_pf_eeg])
+                    apport_vertical[4] = apport_vertical[4] + potentiel_fonte * np.sum(
+                        mask_pf_eeg
+                    )
+                    eeg[mask_pf_eeg] = 0
+                    eeg[~mask_pf_eeg] = eeg[~mask_pf_eeg] - potentiel_fonte
 
     # ====================
     # Sauvegarde de l'état
