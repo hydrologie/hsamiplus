@@ -49,11 +49,12 @@ class TestHsamiEcoulementHorizontal(unittest.TestCase):
             ]
         )
         self.apport_vertical = [0.0548254922621093, 0, 0, -0.116328327325140, 0, 0]
-        self.modules = {"mhumide": 1}
+        self.modules = {"mhumide": 0}
 
         self.apport = [0.05482549, 0.0347, 0.01298149, -0.116328327, 0, 3.791754376e-05]
 
     def test_hsami_ecoulement_horizontal(self):
+        # Module mhumide : 0
         apport, reserve_inter, eau_hydrogrammes = hsami_ecoulement_horizontal(
             self.nb_pas,
             self.vidange_reserve_inter,
@@ -85,6 +86,7 @@ class TestHsamiEcoulementHorizontal(unittest.TestCase):
         )
 
     def test_hsami_ecoulement_horizontal_no_mhumide(self):
+        # Module mhumide : 0
         self.modules["mhumide"] = 0
         apport, reserve_inter, eau_hydrogrammes = hsami_ecoulement_horizontal(
             self.nb_pas,

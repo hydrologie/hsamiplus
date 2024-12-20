@@ -43,11 +43,14 @@ class TestHsamiEcoulementVertical(unittest.TestCase):
         self.offre = 0.0
         self.demande = 0.1163
         self.modules = {"sol": "hsami", "qbase": "hsami", "infiltration": "hsami"}
+
         self.ruissellement_surface = 0.0
         self.apport_vertical = [0.0, 0.0, 0.0, -0.1163, 0.0]
         self.etr = [0.0, 0.0, 0.0, 0.1163]
 
     def test_hsami_ecoulement_vertical_hsami(self):
+        # Module sol : hsami
+        # Module infilitration : hsami
         apport, etat, etr = hsami_ecoulement_vertical(
             self.nb_pas,
             self.param,
@@ -67,7 +70,7 @@ class TestHsamiEcoulementVertical(unittest.TestCase):
         self.assertEqual(len(apport), 5)
         self.assertEqual(len(etr), 4)
 
-        # Check infilitration
+        # Module infilitration : green_ampt
         self.modules["infiltration"] = "green_ampt"
         apport, etat, etr = hsami_ecoulement_vertical(
             self.nb_pas,
@@ -88,6 +91,7 @@ class TestHsamiEcoulementVertical(unittest.TestCase):
         self.assertEqual(len(apport), 5)
         self.assertEqual(len(etr), 4)
 
+        # Module infilitration : scs_cn
         self.modules["infiltration"] = "scs_cn"
         apport, etat, etr = hsami_ecoulement_vertical(
             self.nb_pas,
@@ -108,7 +112,7 @@ class TestHsamiEcoulementVertical(unittest.TestCase):
         self.assertEqual(len(apport), 5)
         self.assertEqual(len(etr), 4)
 
-        # Check qbase
+        # Module qbase : dingma
         self.modules["qbase"] = "dingman"
         apport, etat, etr = hsami_ecoulement_vertical(
             self.nb_pas,
@@ -129,6 +133,7 @@ class TestHsamiEcoulementVertical(unittest.TestCase):
         self.assertEqual(len(apport), 5)
         self.assertEqual(len(etr), 4)
 
+        # Module qbase : hsami
         self.modules["qbase"] = "hsami"
         apport, etat, etr = hsami_ecoulement_vertical(
             self.nb_pas,
@@ -150,7 +155,12 @@ class TestHsamiEcoulementVertical(unittest.TestCase):
         self.assertEqual(len(etr), 4)
 
     def test_hsami_ecoulement_vertical_3couches(self):
+        # Module sol : 3couches
         self.modules["sol"] = "3couches"
+
+        # Module infilitration : hsami
+        self.modules["infiltration"] = "hsami"
+
         apport, etat, etr = hsami_ecoulement_vertical(
             self.nb_pas,
             self.param,
@@ -170,7 +180,7 @@ class TestHsamiEcoulementVertical(unittest.TestCase):
         self.assertEqual(len(apport), 5)
         self.assertEqual(len(etr), 4)
 
-        # Check infilitration
+        # Module infilitration : green_ampt
         self.modules["infiltration"] = "green_ampt"
         apport, etat, etr = hsami_ecoulement_vertical(
             self.nb_pas,
@@ -191,7 +201,50 @@ class TestHsamiEcoulementVertical(unittest.TestCase):
         self.assertEqual(len(apport), 5)
         self.assertEqual(len(etr), 4)
 
+        # Module infilitration : scs_cn
         self.modules["infiltration"] = "scs_cn"
+        apport, etat, etr = hsami_ecoulement_vertical(
+            self.nb_pas,
+            self.param,
+            self.etat,
+            self.offre,
+            self.demande,
+            self.modules,
+            self.ruissellement_surface,
+            self.apport_vertical,
+            self.etr,
+        )
+        self.assertIsNotNone(apport)
+        self.assertIsNotNone(etat)
+        self.assertIsNotNone(etr)
+
+        # Check the shape of the outputs
+        self.assertEqual(len(apport), 5)
+        self.assertEqual(len(etr), 4)
+
+        # Module qbase : dingma
+        self.modules["qbase"] = "dingman"
+        apport, etat, etr = hsami_ecoulement_vertical(
+            self.nb_pas,
+            self.param,
+            self.etat,
+            self.offre,
+            self.demande,
+            self.modules,
+            self.ruissellement_surface,
+            self.apport_vertical,
+            self.etr,
+        )
+        self.assertIsNotNone(apport)
+        self.assertIsNotNone(etat)
+        self.assertIsNotNone(etr)
+
+        # Check the shape of the outputs
+        self.assertEqual(len(apport), 5)
+        self.assertEqual(len(etr), 4)
+
+        # Module qbase : hsami
+        self.modules["qbase"] = "hsami"
         apport, etat, etr = hsami_ecoulement_vertical(
             self.nb_pas,
             self.param,

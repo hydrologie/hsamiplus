@@ -8,11 +8,13 @@ from hsamiplus.hsami_interception import (
     calcul_densite_neige,
     conductivite_neige,
     degel_sol,
+    dj_hsami,
     erf,
     gel_neige,
     gel_sol,
     hsami_interception,
     indice_radiation,
+    mdj_alt,
     percolation_eau_fonte,
     pluie_neige,
 )
@@ -21,6 +23,8 @@ from hsamiplus.hsami_interception import (
 class TestHsamiInterception(unittest.TestCase):
     def setUp(self):
         self.nb_pas = 1
+        self.pas_de_temps = 24 / self.nb_pas
+        self.pdts = self.pas_de_temps * 60 * 60
         self.jj = 245
         lat = 47.1943
         alt = 390.9
@@ -113,6 +117,255 @@ class TestHsamiInterception(unittest.TestCase):
             self.etat,
             self.modules,
             self.physio,
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+    def test_hsami_dj_hsami(self):
+        # Module hsami
+        eau_surface, demande_eau, etat, etr, apport_vertical = dj_hsami(
+            self.modules,
+            self.meteo,
+            self.etat,
+            np.zeros(5),
+            np.zeros(5),
+            self.duree,
+            self.param[1],
+            self.param[2],
+            self.param[3],
+            self.param[4],
+            self.param[5],
+            self.param[6],
+            self.param[7],
+            self.param[11],
+            self.etat["sol"],
+            self.t_min,
+            self.t_max,
+            self.pluie,
+            self.neige,
+            0.0,  # soleil
+            0.0,  # demande_eau
+            0.0,  # demande_reservoir
+            self.etat["neige_au_sol"],
+            self.etat["fonte"],
+            self.etat["neige_au_sol_totale"],
+            self.etat["fonte_totale"],
+            self.etat["derniere_neige"],
+            self.etat["eeg"],
+            self.etat["gel"],
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+        # Module dj
+        self.modules["een"] = "dj"
+        eau_surface, demande_eau, etat, etr, apport_vertical = dj_hsami(
+            self.modules,
+            self.meteo,
+            self.etat,
+            np.zeros(5),
+            np.zeros(5),
+            self.duree,
+            self.param[1],
+            self.param[2],
+            self.param[3],
+            self.param[4],
+            self.param[5],
+            self.param[6],
+            self.param[7],
+            self.param[11],
+            self.etat["sol"],
+            self.t_min,
+            self.t_max,
+            self.pluie,
+            self.neige,
+            0.0,  # soleil
+            0.0,  # demande_eau
+            0.0,  # demande_reservoir
+            self.etat["neige_au_sol"],
+            self.etat["fonte"],
+            self.etat["neige_au_sol_totale"],
+            self.etat["fonte_totale"],
+            self.etat["derniere_neige"],
+            self.etat["eeg"],
+            self.etat["gel"],
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+    def test_hsami_mdj_alt(self):
+        # Module een: mdj
+        self.modules["een"] = "mdj"
+        # Module radiation : hsami
+
+        eau_surface, demande_eau, etat, etr, apport_vertical = mdj_alt(
+            self.param,
+            self.modules,
+            self.meteo,
+            self.physio,
+            self.etat,
+            np.zeros(5),
+            np.zeros(5),
+            self.duree,
+            self.pdts,
+            self.jj,
+            self.pas_de_temps,
+            self.param[1],
+            self.param[4],
+            self.param[11],
+            self.etat["sol"],
+            self.t_min,
+            self.t_max,
+            self.pluie,
+            self.neige,
+            0.0,  # soleil
+            0.0,  # demande_eau
+            0.0,  # demande_reservoir
+            self.etat["neige_au_sol"],
+            self.etat["fonte"],
+            self.etat["derniere_neige"],
+            self.etat["eeg"],
+            self.etat["gel"],
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+        # Module een : alt
+        self.modules["een"] = "alt"
+        # Module radiation : hsami
+
+        eau_surface, demande_eau, etat, etr, apport_vertical = mdj_alt(
+            self.param,
+            self.modules,
+            self.meteo,
+            self.physio,
+            self.etat,
+            np.zeros(5),
+            np.zeros(5),
+            self.duree,
+            self.pdts,
+            self.jj,
+            self.pas_de_temps,
+            self.param[1],
+            self.param[4],
+            self.param[11],
+            self.etat["sol"],
+            self.t_min,
+            self.t_max,
+            self.pluie,
+            self.neige,
+            0.0,  # soleil
+            0.0,  # demande_eau
+            0.0,  # demande_reservoir
+            self.etat["neige_au_sol"],
+            self.etat["fonte"],
+            self.etat["derniere_neige"],
+            self.etat["eeg"],
+            self.etat["gel"],
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+        # Module een: mdj
+        self.modules["een"] = "mdj"
+        # Module radiation : mdj
+        self.modules["radiation"] = "mdj"
+
+        eau_surface, demande_eau, etat, etr, apport_vertical = mdj_alt(
+            self.param,
+            self.modules,
+            self.meteo,
+            self.physio,
+            self.etat,
+            np.zeros(5),
+            np.zeros(5),
+            self.duree,
+            self.pdts,
+            self.jj,
+            self.pas_de_temps,
+            self.param[1],
+            self.param[4],
+            self.param[11],
+            self.etat["sol"],
+            self.t_min,
+            self.t_max,
+            self.pluie,
+            self.neige,
+            0.0,  # soleil
+            0.0,  # demande_eau
+            0.0,  # demande_reservoir
+            self.etat["neige_au_sol"],
+            self.etat["fonte"],
+            self.etat["derniere_neige"],
+            self.etat["eeg"],
+            self.etat["gel"],
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+        # Module een : alt
+        self.modules["een"] = "alt"
+        # Module radiation : mdj
+        self.modules["radiation"] = "mdj"
+
+        eau_surface, demande_eau, etat, etr, apport_vertical = mdj_alt(
+            self.param,
+            self.modules,
+            self.meteo,
+            self.physio,
+            self.etat,
+            np.zeros(5),
+            np.zeros(5),
+            self.duree,
+            self.pdts,
+            self.jj,
+            self.pas_de_temps,
+            self.param[1],
+            self.param[4],
+            self.param[11],
+            self.etat["sol"],
+            self.t_min,
+            self.t_max,
+            self.pluie,
+            self.neige,
+            0.0,  # soleil
+            0.0,  # demande_eau
+            0.0,  # demande_reservoir
+            self.etat["neige_au_sol"],
+            self.etat["fonte"],
+            self.etat["derniere_neige"],
+            self.etat["eeg"],
+            self.etat["gel"],
         )
         self.assertIsInstance(eau_surface, float)
         self.assertIsInstance(demande_eau, float)
