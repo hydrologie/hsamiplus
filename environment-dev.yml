@@ -3,6 +3,8 @@ channels:
   - conda-forge
 dependencies:
   - python >=3.9,<3.13
+  - numpy >=1.23
+  - typer >=0.12.3
   # Dev tools and testing
   - pip >=24.3.1
   - bump-my-version >=0.27.0 # conda package is behind
@@ -22,8 +24,7 @@ dependencies:
   - ipython >=8.5.0
   - isort ==5.13.2
   - numpydoc >=1.8.0
-  - numpy >=1.23
-  - pandas
+  - pandas >=2.2.0
   - pre-commit >=3.5.0
   - ruff >=0.7.0
-  - scipy
+  - scipy >=1.10.0

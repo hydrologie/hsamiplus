@@ -5,6 +5,7 @@ channels:
 dependencies:
   - python >=3.12,<3.13
   - sphinx >=7.0.0
+  - ipython >=8.5.0
   - pandoc
   - nbsphinx >=0.9.5
   - sphinx-rtd-theme >=1.0
