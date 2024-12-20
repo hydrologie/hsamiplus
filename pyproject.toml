@@ -50,6 +50,7 @@ dev = [
   "coveralls >=4.0.1",
   "mypy",
   "numpydoc >=1.8.0",
+  "pandas",
   "pytest >=8.3.2",
   "pytest-cov >=5.0.0",
   "scipy",
