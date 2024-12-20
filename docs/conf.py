@@ -40,6 +40,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx_codeautolink',
     'sphinx_copybutton',
+    'nbsphinx'
 ]
 
 autosectionlabel_prefix_document = True

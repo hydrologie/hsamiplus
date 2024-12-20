@@ -67,7 +67,7 @@ docs = [
   "sphinx-copybutton",
   "sphinx-intl",
   "sphinx-rtd-theme >=1.0",
-  "nbsphinx",
+  "nbsphinx >=0.9.5",
   "ipython",
   "ipykernel",
   "jupyter_client"
