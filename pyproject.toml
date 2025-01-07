@@ -32,7 +32,8 @@ classifiers = [
 ]
 dynamic = ["description", "version"]
 dependencies = [
-  "typer >=0.12.3"
+  "typer >=0.12.3",
+  "numpy >=1.23"
 ]
 
 [project.optional-dependencies]
@@ -49,8 +50,10 @@ dev = [
   "coveralls >=4.0.1",
   "mypy",
   "numpydoc >=1.8.0",
+  "pandas",
   "pytest >=8.3.2",
   "pytest-cov >=5.0.0",
+  "scipy",
   "black ==24.10.0",
   "blackdoc ==0.3.9",
   "isort ==5.13.2",
