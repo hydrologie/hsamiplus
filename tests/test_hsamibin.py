@@ -37,7 +37,7 @@ class TestHsamibin(unittest.TestCase):
         )
 
         # Check the return values
-        self.assertEqual(S, "S_value")
+        self.assertEqual(s, "S_value")
         self.assertEqual(etats, "etats_value")
         self.assertEqual(deltas, "deltas_value")
 

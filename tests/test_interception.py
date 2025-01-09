@@ -32,7 +32,7 @@ class TestHsamiInterception(unittest.TestCase):
         albedo_neige = 0.5
         self.param = [0] * 50  # Assuming 50 parameters for simplicity
         self.param[0] = 0.5  # efficacite_evapo_ete
-        self.param[1] = 0.0  # efficacite_evapo_hiver
+        self.param[1] = 0.3  # efficacite_evapo_hiver
         self.param[2] = 0.1  # en cm/degre C/jour taux_fonte_jour
         self.param[3] = 0.05  # en cm/degre C/jour taux_fonte_nuit
         self.param[4] = -4.0  # C temp_fonte_jour
@@ -108,6 +108,95 @@ class TestHsamiInterception(unittest.TestCase):
         self.dt_max = self.t_max - self.param[5]
 
     def test_hsami_interception(self):
+        # modules["sol"] = hsami
+        eau_surface, demande_eau, etat, etr, apport_vertical = hsami_interception(
+            self.nb_pas,
+            self.jj,
+            self.param,
+            self.meteo,
+            self.etp,
+            self.etat,
+            self.modules,
+            self.physio,
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+        # modules["sol"] = 3couches
+        self.modules["sol"] = "3couches"
+        eau_surface, demande_eau, etat, etr, apport_vertical = hsami_interception(
+            self.nb_pas,
+            self.jj,
+            self.param,
+            self.meteo,
+            self.etp,
+            self.etat,
+            self.modules,
+            self.physio,
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+        # len(meteo["bassin"]) < 5
+        self.modules["sol"] = "hsami"
+        self.meteo = {
+            "bassin": [3.3, 15.5, 12.3, 0.0],
+            "reservoir": [3.3, 15.5, 12.0, 0.0],
+        }
+        eau_surface, demande_eau, etat, etr, apport_vertical = hsami_interception(
+            self.nb_pas,
+            self.jj,
+            self.param,
+            self.meteo,
+            self.etp,
+            self.etat,
+            self.modules,
+            self.physio,
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+        # modules["sol"] = "3couches"
+        self.modules["sol"] == "3couches"
+        eau_surface, demande_eau, etat, etr, apport_vertical = hsami_interception(
+            self.nb_pas,
+            self.jj,
+            self.param,
+            self.meteo,
+            self.etp,
+            self.etat,
+            self.modules,
+            self.physio,
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+        # Données de EEN
+        self.modules["sol"] == "hsami"
+        self.meteo = {
+            "bassin": [-3.3, 1.5, 2.3, 0.0, 0.5, 19.3],
+            "reservoir": [-3.3, 1.5, 2.0, 0.0, 0.5, 19.3],
+        }
         eau_surface, demande_eau, etat, etr, apport_vertical = hsami_interception(
             self.nb_pas,
             self.jj,
@@ -128,6 +217,7 @@ class TestHsamiInterception(unittest.TestCase):
 
     def test_hsami_dj_hsami(self):
         # Module hsami
+        # ------------
         eau_surface, demande_eau, etat, etr, apport_vertical = dj_hsami(
             self.modules,
             self.meteo,
@@ -167,7 +257,92 @@ class TestHsamiInterception(unittest.TestCase):
         self.assertIsInstance(apport_vertical, np.ndarray)
         self.assertEqual(apport_vertical.shape, (5,))
 
+        # neige_fondue > 0
+        eau_surface, demande_eau, etat, etr, apport_vertical = dj_hsami(
+            self.modules,
+            self.meteo,
+            self.etat,
+            np.zeros(5),
+            np.zeros(5),
+            self.duree,
+            self.param[1],
+            self.param[2],
+            self.param[3],
+            self.param[4],
+            self.param[5],
+            self.param[6],
+            self.param[7],
+            self.param[11],
+            1.9427,  # etat["sol"]
+            -17.2,  # t_min
+            13.3,  # t_max
+            1.6,  # pluie
+            0,  # neige
+            0.5,  # soleil
+            0.13338,  # demande_eau
+            0.1338,  # demande_reservoir
+            3.873,  # etat["neige_au_sol"]
+            0,  # etat["fonte"],
+            5.794,  # etat["neige_au_sol_totale"]
+            0,  # etat["fonte_totale"],
+            1.0,  # etat["derniere_neige"],
+            self.etat["eeg"],
+            0.0,  # etat["gel"],
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+        # neige_au_sol + pluie_moins_evaporation < 0
+        eau_surface, demande_eau, etat, etr, apport_vertical = dj_hsami(
+            self.modules,
+            self.meteo,
+            self.etat,
+            np.zeros(5),
+            np.zeros(5),
+            self.duree,
+            0.5,  # self.param[1], Efficacité évapo hiver
+            self.param[2],
+            self.param[3],
+            self.param[4],
+            self.param[5],
+            self.param[6],
+            self.param[7],
+            self.param[11],
+            self.etat["sol"],
+            self.t_min,
+            self.t_max,
+            0.1,  # self.pluie,
+            self.neige,
+            0.0,  # soleil
+            3.7,  # demande_eau
+            0.0,  # demande_reservoir
+            self.etat["neige_au_sol"],
+            self.etat["fonte"],
+            3.69,  # etat["neige_au_sol_totale"]
+            self.etat["fonte_totale"],
+            self.etat["derniere_neige"],
+            self.etat["eeg"],
+            self.etat["gel"],
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
         # Module dj
+        # ---------
+        self.meteo = {
+            "bassin": [3.3, 15.5, 12.3, 0.0, 0.5, -1],
+            "reservoir": [3.3, 15.5, 12.0, 0.0, 0.5, -1],
+        }
         self.modules["een"] = "dj"
         eau_surface, demande_eau, etat, etr, apport_vertical = dj_hsami(
             self.modules,
@@ -185,16 +360,16 @@ class TestHsamiInterception(unittest.TestCase):
             self.param[7],
             self.param[11],
             self.etat["sol"],
-            self.t_min,
-            self.t_max,
-            self.pluie,
-            self.neige,
-            0.0,  # soleil
+            self.meteo["bassin"][0],  # t_min,
+            self.meteo["bassin"][1],  # t_max,
+            self.meteo["bassin"][2],  # pluie,
+            self.meteo["bassin"][3],  # neige,
+            0.5,  # soleil
             0.0,  # demande_eau
             0.0,  # demande_reservoir
             self.etat["neige_au_sol"],
             self.etat["fonte"],
-            self.etat["neige_au_sol_totale"],
+            2.72,  # etat["neige_au_sol_totale"],
             self.etat["fonte_totale"],
             self.etat["derniere_neige"],
             self.etat["eeg"],
@@ -388,12 +563,23 @@ class TestHsamiInterception(unittest.TestCase):
         self.assertIsNotNone(result)
 
     def test_degel_sol(self):
+        # Sol partiellement dégelé
         result = degel_sol(
             self.duree,
             self.dt_max,
             self.etat["sol"][0],
             self.etat["gel"],
             self.etat["neige_au_sol"],
+        )
+        self.assertIsNotNone(result)
+
+        # Sol complétement dégelé
+        result = degel_sol(
+            self.duree,
+            6.4,
+            0.53,
+            0.31,
+            0.1,
         )
         self.assertIsNotNone(result)
 

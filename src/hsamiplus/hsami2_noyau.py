@@ -164,6 +164,7 @@ def hsami2_noyau(projet, etat):
         'hsami' (défaut)
         'green_ampt'
         'scs_cn'
+
         sol :
         'hsami' (défaut)
         '3couches'
@@ -171,6 +172,7 @@ def hsami2_noyau(projet, etat):
         qbase :
         'hsami' (défaut)
         'dingman'
+
         radiation :
         'hsami' (défaut)
         'mdj'

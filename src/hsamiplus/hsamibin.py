@@ -63,7 +63,7 @@ def hsamibin(path, filename):
     return s, etats, deltas
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     """
     path : str, path to the data directory
     filename : str, projet file name

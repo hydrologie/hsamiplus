@@ -1,7 +1,6 @@
 """Create hsami input 'projet' file."""
 
 import json
-import os
 import re
 from datetime import date
 from pathlib import Path
@@ -101,6 +100,51 @@ def make_project(data_dir, basin_file, param_file, projet_file):
     # Physio
     # -----------------------------------------------------------------------------------------
 
+    physio = physiohsami(donnees_bv)
+
+    # Meteo
+    # -----------------------------------------------------------------------------------------
+
+    meteo, dates = meteohsami(
+        data_dir, donnees_bv["fichier_meteo_bv"], donnees_bv["fichier_meteo_reservoir"]
+    )
+
+    # Projet
+    # -----------------------------------------------------------------------------------------
+
+    projet = {
+        "id": donnees_bv["ID"],
+        "nb_pas_par_jour": donnees_bv["nb_pas_par_jour"],
+        "memoire": donnees_bv["memoire"],
+        "superficie": [donnees_bv["superficie_bv"], donnees_bv["superficie_reservoir"]],
+        "modules": modules,
+        "param": params,
+        "physio": physio,
+        "meteo": meteo,
+        "dates": dates,
+        # 'hu_inter' :        donnees_bv['hydrogramme_inter'],
+        # 'hu_surface' :      donnees_bv['hydrogramme_surface']
+    }
+
+    writejson(projet_file, projet)
+
+    print(f"Le fichier de projet HSAMI {projet_file} a été créé !")
+
+
+def physiohsami(donnees_bv):
+    """
+    Lecture de données météo.
+
+    Parameters
+    ----------
+    donnees_bv : dict
+        Données de bassin versant.
+
+    Returns
+    -------
+    dict
+        Données physiologiques.
+    """
     physio = {
         "latitude": donnees_bv["latitude_bv"],
         "altitude": donnees_bv["altitude_bv"],
@@ -126,30 +170,49 @@ def make_project(data_dir, basin_file, param_file, projet_file):
         # e.g.[709.8, 599.4, 489.0, 378.6, 268.2],
     }
 
-    if "niveau" in donnees_bv:
-        if len(donnees_bv["niveau_reservoir"]) > 0:
+    if "niveau_reservoir" in donnees_bv:
+        if isinstance(donnees_bv["niveau_reservoir"], float):
             physio["niveau"] = donnees_bv["niveau_reservoir"]  # Niveau du réservoir (m)
 
-    # Meteo
-    # -----------------------------------------------------------------------------------------
+    return physio
 
+
+def meteohsami(data_dir, fichier_meteo_bv, fichier_meteo_reservoir):
+    """
+    Lecture de données météo.
+
+    Parameters
+    ----------
+    data_dir : str
+        Chemin d'accès au fichier météo à lire.
+    fichier_meteo_bv : str
+        Fichier météo du bassin versant.
+    fichier_meteo_reservoir : str
+        Fichier météo du réservoir.
+
+    Returns
+    -------
+    meteo : dict
+        Liste de valeurs de paramètres par défaut.
+    dates : list
+        Liste de dates.
+    """
     df_meteo = pd.read_csv(
-        Path(data_dir) / donnees_bv["fichier_meteo_bv"],
+        Path(data_dir) / fichier_meteo_bv,
         header=0,
         index_col=0,
         sep=",",
         parse_dates=True,
     )
 
-    if donnees_bv["fichier_meteo_bv"] == donnees_bv["fichier_meteo_reservoir"]:
-        dates = [
-            [dt.year, dt.month, dt.day, dt.minute, dt.second] for dt in df_meteo.index
-        ]
-        meteo_bsn = df_meteo.to_numpy().tolist()
+    meteo_bsn = df_meteo.to_numpy().tolist()
+    dates = [[dt.year, dt.month, dt.day, dt.minute, dt.second] for dt in df_meteo.index]
+
+    if fichier_meteo_bv == fichier_meteo_reservoir:
         meteo_res = meteo_bsn
     else:
         df_meteo_res = pd.read_csv(
-            Path(data_dir) / donnees_bv["fichier_meteo_reservoir"],
+            Path(data_dir) / fichier_meteo_reservoir,
             header=0,
             sep=",",
         )
@@ -158,26 +221,7 @@ def make_project(data_dir, basin_file, param_file, projet_file):
     meteo = {"bassin": meteo_bsn, "reservoir": meteo_res}
     # meteo = {'bassin': meteo_bsn}
 
-    # Projet
-    # -----------------------------------------------------------------------------------------
-
-    projet = {
-        "id": donnees_bv["ID"],
-        "nb_pas_par_jour": donnees_bv["nb_pas_par_jour"],
-        "memoire": donnees_bv["memoire"],
-        "superficie": [donnees_bv["superficie_bv"], donnees_bv["superficie_reservoir"]],
-        "modules": modules,
-        "param": params,
-        "physio": physio,
-        "meteo": meteo,
-        "dates": dates,
-        # 'hu_inter' :        donnees_bv['hydrogramme_inter'],
-        # 'hu_surface' :      donnees_bv['hydrogramme_surface']
-    }
-
-    writejson(projet_file, projet)
-
-    print(f"Le fichier de projet HSAMI {projet_file} a été créé !")
+    return meteo, dates
 
 
 def paramshsami(param_file):
@@ -237,7 +281,7 @@ def writejson(filename, dict_var):
 if __name__ == "__main__":
     day = date.today()
 
-    data_dir = "."
+    data_dir = "../../data"
     basin_file = "bassin_versant_info.txt"
     param_file = "parametres.txt"
     projet_file = "projet_1_" + day.strftime("%Y%m%d") + ".json"

@@ -63,11 +63,11 @@ def hsami_glace(modules, superficie, etats, *varargin):
                     )
                     # Ex. : superficie_glace = [99, 98]
                     #       superficie_reservoir = [339.1769, 339.6125]
-                    #       etat.reservoir_superficie = 339.6125
-                    #       etat.reservoir_superficie_glace = 98
-                    #       etat.reservoir_epaisseur_glace = 0.7488
-                    #       etat.reservoir_superficie_ref = 438
-                    #       etat.reservoir_energie_glace = -1.7324E07
+                    #       etat['reservoir_superficie'] = 339.6125
+                    #       etat['reservoir_superficie_glace'] = 98
+                    #       etat['reservoir_epaisseur_glace'] = 0.7488
+                    #       etat['reservoir_superficie_ref'] = 438
+                    #       etat['reservoir_energie_glace']= -1.7324E07
 
                 else:
                     raise ValueError(

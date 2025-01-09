@@ -328,7 +328,7 @@ def ecoulement_3couches(
 
         elif modules["infiltration"] == "scs_cn":
             cn = param[23]
-            inf_potentielle, apport[:] = scs_cn(offre, cn)
+            inf_potentielle, apport[2] = scs_cn(offre, cn)
 
         pompage = 0
 

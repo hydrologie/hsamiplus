@@ -304,7 +304,7 @@ def dj_hsami(  # noqa: C901
 
     # Sur la premiere ligne de la sixiéme colonne, on peut retrouver un relevé de neige
     if (len(meteo["bassin"]) == 6) and (meteo["bassin"][5] >= 0):
-        # Si c'est le cas, on met é jour la neige au sol en fonction du relevé
+        # Si c'est le cas, on met à jour la neige au sol en fonction du relevé
         delta_neige = neige_au_sol_totale - neige_au_sol
         neige_au_sol = meteo["bassin"][5]
 
