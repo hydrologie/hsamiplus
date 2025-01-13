@@ -32,6 +32,7 @@ classifiers = [
 ]
 dynamic = ["description", "version"]
 dependencies = [
+  "numpy >=1.23",
   "typer >=0.12.3"
 ]
 
@@ -47,10 +48,14 @@ dev = [
   "tox >=4.23.2",
   "coverage >=7.5.0",
   "coveralls >=4.0.1",
+  "ipykernel",
+  "ipython >=8.5.0",
   "mypy",
   "numpydoc >=1.8.0",
+  "pandas >=2.2.0",
   "pytest >=8.3.2",
   "pytest-cov >=5.0.0",
+  "scipy >=1.10.0",
   "black ==24.10.0",
   "blackdoc ==0.3.9",
   "isort ==5.13.2",
@@ -59,15 +64,16 @@ dev = [
 ]
 docs = [
   # Documentation and examples
+  "ipykernel",
+  "ipython >=8.5.0",
+  "jupyter_client",
+  "nbsphinx >=0.9.5",
+  "pygments <2.19", # FIXME: temporary fix for sphinx-codeautolink
   "sphinx >=7.0.0",
-  "sphinx-codeautolink",
+  "sphinx-codeautolink >=0.15.2,!=0.16.0", # FIXME: temporary fix for sphinx-codeautolink
   "sphinx-copybutton",
   "sphinx-intl",
-  "sphinx-rtd-theme >=1.0",
-  "nbsphinx",
-  "ipython",
-  "ipykernel",
-  "jupyter_client"
+  "sphinx-rtd-theme >=1.0"
 ]
 all = ["hsamiplus[dev]", "hsamiplus[docs]"]
 
