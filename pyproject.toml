@@ -64,15 +64,16 @@ dev = [
 ]
 docs = [
   # Documentation and examples
+  "ipykernel",
+  "ipython >=8.5.0",
+  "jupyter_client",
+  "nbsphinx >=0.9.5",
+  "pygments <2.19", # FIXME: temporary fix for sphinx-codeautolink
   "sphinx >=7.0.0",
-  "sphinx-codeautolink",
+  "sphinx-codeautolink >=0.15.2,!=0.16.0", # FIXME: temporary fix for sphinx-codeautolink
   "sphinx-copybutton",
   "sphinx-intl",
-  "sphinx-rtd-theme >=1.0",
-  "nbsphinx >=0.9.5",
-  "ipython >=8.5.0",
-  "ipykernel",
-  "jupyter_client"
+  "sphinx-rtd-theme >=1.0"
 ]
 all = ["hsamiplus[dev]", "hsamiplus[docs]"]
 
