@@ -1,6 +1,8 @@
 import sys
 import unittest
+import warnings
 from datetime import datetime
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -192,6 +194,30 @@ class TestHsami2Noyau(unittest.TestCase):
         self.assertIn("ruissellement", delta)
         self.assertIn("vertical", delta)
         self.assertIn("horizontal", delta)
+
+    @patch("warnings.warn")
+    def test_occupation_warning(self, mock_warn):
+        self.projet["modules"]["een"] = "mdj"
+        self.projet["physio"]["occupation"] = [0.50, 0.41]
+
+        s, etat, delta = hsami2_noyau(self.projet, self.etat)
+
+        # Check if the warning was issued
+        mock_warn.assert_called_once_with(
+            "La somme des occupations n" "est pas égale à 1"
+        )
+
+    @patch("warnings.warn")
+    def test_occupation_bande_warning(self, mock_warn):
+        self.projet["modules"]["een"] = "alt"
+        self.projet["physio"]["occupation_bande"] = [0.043, 0.194, 0.745]
+
+        s, etat, delta = hsami2_noyau(self.projet, self.etat)
+
+        # Check if the warning was issued
+        mock_warn.assert_called_once_with(
+            "La somme des occupations n" "est pas égale à 1"
+        )
 
     def test_hsami2_noyau_module1(self):
         self.projet["etp_bassin"] = "mcguinness_bordne"
@@ -467,6 +493,84 @@ class TestHsami2Noyau(unittest.TestCase):
                 assert isinstance(glace_vers_reservoir, float)
                 assert isinstance(bassin_vers_reservoir, float)
                 assert isinstance(bilan, dict)
+
+                # "niveau" not in physio
+                self.projet["physio"] = {
+                    "latitude": 47.1943,
+                    "altitude": 390.90,
+                    "albedo_sol": 0.7,
+                    "i_orientation_bv": 1,
+                    "pente_bv": 1.8,
+                    "occupation": [0.083, 0.503, 0.4140],
+                    # "niveau": 359.17,
+                    "coeff": [-0.0119, 52.095, -16814],
+                    "samax": 242.970,
+                    "occupation_bande": [0.003, 0.015, 0.043, 0.194, 0.745],
+                    "altitude_bande": [581, 530, 479, 429, 379],
+                }
+                (
+                    etat,
+                    eau_surface,
+                    demande_eau,
+                    etps,
+                    etr,
+                    apport_vertical,
+                    glace_vers_reservoir,
+                    bassin_vers_reservoir,
+                    bilan,
+                ) = etp_glace_interception(
+                    self.projet,
+                    self.projet["param"],
+                    self.projet["modules"],
+                    self.projet["physio"],
+                    self.projet["superficie"],
+                    self.projet["meteo"],
+                    self.projet["nb_pas_par_jour"],
+                    self.etat,
+                    self.bilan,
+                )
+                assert isinstance(etat, dict)
+                assert isinstance(etps, list)
+                assert isinstance(etr, list)
+
+                # "niveau" = ''
+                self.projet["physio"] = {
+                    "latitude": 47.1943,
+                    "altitude": 390.90,
+                    "albedo_sol": 0.7,
+                    "i_orientation_bv": 1,
+                    "pente_bv": 1.8,
+                    "occupation": [0.083, 0.503, 0.4140],
+                    "niveau": "",
+                    "coeff": [-0.0119, 52.095, -16814],
+                    "samax": 242.970,
+                    "occupation_bande": [0.003, 0.015, 0.043, 0.194, 0.745],
+                    "altitude_bande": [581, 530, 479, 429, 379],
+                }
+                (
+                    etat,
+                    eau_surface,
+                    demande_eau,
+                    etps,
+                    etr,
+                    apport_vertical,
+                    glace_vers_reservoir,
+                    bassin_vers_reservoir,
+                    bilan,
+                ) = etp_glace_interception(
+                    self.projet,
+                    self.projet["param"],
+                    self.projet["modules"],
+                    self.projet["physio"],
+                    self.projet["superficie"],
+                    self.projet["meteo"],
+                    self.projet["nb_pas_par_jour"],
+                    self.etat,
+                    self.bilan,
+                )
+                assert isinstance(etat, dict)
+                assert isinstance(etps, list)
+                assert isinstance(etr, list)
 
 
 if __name__ == "__main__":

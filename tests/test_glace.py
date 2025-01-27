@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from hsamiplus.hsami_glace import hsami_glace
+from hsamiplus.hsami_glace import conductivite_neige, hsami_glace
 
 
 class TestHsamiGlace(unittest.TestCase):
@@ -143,6 +143,21 @@ class TestHsamiGlace(unittest.TestCase):
             "modules.glace_reservoir doit être 'stefan' ou 'my_lake'"
             in str(context.exception)
         )
+
+    def test_hsami_glace_conductivite_neige(self):
+        # Test cases with known inputs and expected outputs
+        test_cases = [
+            (100, 0.36969 - 0.36435 + 0.04735 + 0.01135 - 0.00848),
+            (200, 0.36969 - 0.20566 - 0.04035 + 0.02491 - 0.00231),
+            (300, 0.36969 - 0.04697 - 0.06757 + 0.00618 + 0.0048),
+            (400, 0.36969 + 0.11172 - 0.03429 - 0.01366 - 0.00355),
+            (500, 0.36969 + 0.27040 + 0.05948 - 0.00342 - 0.00607),
+        ]
+
+        for densite, expected in test_cases:
+            with self.subTest(densite=densite):
+                result = conductivite_neige(densite)
+                self.assertAlmostEqual(result, expected, places=5)
 
 
 if __name__ == "__main__":
