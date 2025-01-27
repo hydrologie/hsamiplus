@@ -102,12 +102,20 @@ class TestHsamiEtp(unittest.TestCase):
             "modules": "linacre",
             "physio": self.physio,
         }
+        # T_a not 0
         t_a = (params["t_min"] + params["t_max"]) / 2
         th = t_a + 0.006 * params["physio"]["altitude"]
         td = etp_td_linacre(params["t_max"], params["t_min"])
         lat = params["physio"]["latitude"] * 180 / np.pi
         expected = (500 * th / (100 - lat) + 15 * (t_a - td)) / (80 - t_a) / 10
         expected = max(0, expected)
+        result = hsami_etp(**params)
+        self.assertAlmostEqual(result, expected, places=4)
+
+        # t-a = 0
+        params["t_min"] = -2.0
+        params["t_max"] = -1.0
+        expected = 0
         result = hsami_etp(**params)
         self.assertAlmostEqual(result, expected, places=4)
 
@@ -194,10 +202,19 @@ class TestHsamiEtp(unittest.TestCase):
             "modules": "turc",
             "physio": self.physio,
         }
+
+        # t_a not 0
         t_a = (params["t_min"] + params["t_max"]) / 2
         k = 0.35
         expected = k * (self.rg + 2.094) * (t_a / (t_a + 15)) / 10
         expected = max(0, expected)
+        result = hsami_etp(**params)
+        self.assertAlmostEqual(result, expected, places=4)
+
+        # t-a = 0
+        params["t_min"] = -1.0
+        params["t_max"] = 1.0
+        expected = 0
         result = hsami_etp(**params)
         self.assertAlmostEqual(result, expected, places=4)
 
@@ -228,9 +245,17 @@ class TestHsamiEtp(unittest.TestCase):
             "modules": "abtew",
             "physio": self.physio,
         }
-        t_a = (params["t_min"] + params["t_max"]) / 2
+
+        # t-a not 0
         expected = 0.53 * self.rg / self.lamda / 10
         expected = max(0, expected)
+        result = hsami_etp(**params)
+        self.assertAlmostEqual(result, expected, places=4)
+
+        # t-a = 0
+        params["t_min"] = -1.0
+        params["t_max"] = 1.0
+        expected = 0
         result = hsami_etp(**params)
         self.assertAlmostEqual(result, expected, places=4)
 
@@ -244,6 +269,8 @@ class TestHsamiEtp(unittest.TestCase):
             "modules": "hargreaves",
             "physio": self.physio,
         }
+
+        # t-a not 0
         t_a = (params["t_min"] + params["t_max"]) / 2
         expected = (
             0.0135
@@ -253,6 +280,13 @@ class TestHsamiEtp(unittest.TestCase):
             / 10
         )
         expected = max(0, expected)
+        result = hsami_etp(**params)
+        self.assertAlmostEqual(result, expected, places=4)
+
+        # t_max - t_min < 0
+        params["t_min"] = 1.0
+        params["t_max"] = -1.0
+        expected = 0
         result = hsami_etp(**params)
         self.assertAlmostEqual(result, expected, places=4)
 
