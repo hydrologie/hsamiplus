@@ -245,7 +245,7 @@ def paramshsami(param_file):
     La fonction lit un fichier de paramètres et renvoie une liste de valeurs de paramètres
     par défaut ainsi que le DataFrame complet.
     """
-    df_param = pd.read_csv(param_file, header=0, delim_whitespace=True)
+    df_param = pd.read_csv(param_file, header=0, sep=r"\s+")
 
     df_param.columns = ["Nom", "min", "default", "max"]
 
