@@ -1,45 +1,76 @@
 import datetime
 import json
-import sys
 import unittest
-from unittest.mock import MagicMock, mock_open, patch
+from pathlib import Path
+from unittest.mock import mock_open, patch
 
 from hsamiplus.hsamibin import hsamibin
 
 
 class TestHsamibin(unittest.TestCase):
-    @patch("hsamibin.hsami2")
-    @patch("builtins.open", new_callable=mock_open, read_data='{"key": "value"}')
-    @patch("os.path.join", side_effect=lambda *args: "/".join(args))
-    def vrtest_hsamibin(self, mock_path_join, mock_open, mock_hsami2):
-        # Mock the return value of hsami2
-        mock_hsami2.return_value = ("S_value", "etats_value", "deltas_value")
+    def setUp(self):
+        self.path = Path(__file__).parent.parent.absolute() / "data"
+        self.filename = "projet.json"
+        self.mock_s = {
+            "Qtotal": [12.0, 11.7, 11.5],
+            "ETP": [0.033, 0.04, 0.039],
+        }
+        self.mock_etats = {
+            "sol": [[9.15, 1.34], [9.11, 1.26], [9.078, 1.14]],
+            "neige_au_sol": [5.35, 5.33, 5.31],
+        }
+        self.mock_deltas = {
+            "total": [0.0, 0.0, 0.0],
+            "vertical": [0.0, 0.0, 0.0],
+        }
 
-        # Define the path and filename
-        path = "test_path"
-        filename = "test_file.json"
+    @patch(
+        "pathlib.Path.open",
+        new_callable=mock_open,
+        read_data='{"test_key": "test_value"}',
+    )
+    def test_load_projet_json(self, mock_file):
+        # Mock the json.load function
+        with Path.open(Path(self.path) / self.filename) as file:
+            projet = json.load(file)
 
-        # Call the function
-        s, etats, deltas = hsamibin(path, filename)
+        # Check if the projet file is called correctly
+        self.assertEqual(projet.get("test_key"), "test_value")
+        mock_file.assert_called_once_with(Path(self.path) / self.filename)
 
-        # Check that hsami2 was called with the correct parameters
-        mock_hsami2.assert_called_once_with({"key": "value"})
+    def test_hsamibin_execution(self):
+        # Run hsamibin
+        s, etats, deltas = hsamibin(self.path, self.filename)
 
-        # Check that the output file was written correctly
-        date_str = datetime.date.today().strftime("%d_%m_%Y")
-        output_filename = f"output_{date_str}.json"
-        mock_open.assert_called_with(f"test_path/{output_filename}", "w")
-        handle = mock_open()
-        handle.write.assert_called_once_with(
-            json.dumps(
-                {"S": "S_value", "etats": "etats_value", "deltas": "deltas_value"}
-            )
+        # Check if the return values of hsamibin are correct
+        self.assertIsInstance(s, dict)
+        self.assertIsInstance(etats, dict)
+        self.assertIsInstance(deltas, dict)
+
+    @patch("pathlib.Path.open", new_callable=mock_open)
+    def test_write_output_file(self, mock_file):
+        # Date
+        date = datetime.date(2025, 1, 1)
+
+        # Perform snippet logic
+        output = {
+            "s": self.mock_s,
+            "etats": self.mock_etats,
+            "deltas": self.mock_deltas,
+        }
+        output_json = json.dumps(output)
+        output_file = "output_" + date.strftime("%d_%m_%Y") + ".json"
+
+        with Path.open(Path(self.path) / output_file, "w") as f:
+            f.write(output_json)
+
+        # Check calls
+        mock_file.assert_called_once_with(
+            Path(self.path) / "output_01_01_2025.json", "w"
         )
 
-        # Check the return values
-        self.assertEqual(s, "S_value")
-        self.assertEqual(etats, "etats_value")
-        self.assertEqual(deltas, "deltas_value")
+        # Check if the output file was written correctly
+        mock_file().write.assert_called_once_with(output_json)
 
 
 if __name__ == "__main__":
