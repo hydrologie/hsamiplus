@@ -243,7 +243,7 @@ def set_default_module(modules, key, default_value):
     key : str
         Hydrological process.
     default_value : str
-        HSAMI+ mudule name.
+        HSAMI+ module name.
     """
     if key not in modules:
         modules[key] = default_value
@@ -290,14 +290,14 @@ def hsami_etat_initial(projet, param, modules, physio, superficie, etat):
     physio : dict
         Les données physiographiques.
     superficie : list
-        La superficie du bassin versan et  la uuperficie moyenne du réservoir.
+        La superficie du bassin versant et la superficie moyenne du réservoir.
     etat : dict
-        État du bassin versants et du réservoir.
+        État du bassin versant et du réservoir.
 
     Returns
     -------
     dict
-        État du bassin versants et du réservoir.
+        État du bassin versant et du réservoir.
     """
     pas = 1
     for i_pas in range(365):
@@ -357,15 +357,15 @@ def hsami_simulation(
     physio : dict
         Les données physiographiques.
     superficie : list
-        La superficie du bassin versan et  la uuperficie moyenne du réservoir.
+        La superficie du bassin versant et la superficie moyenne du réservoir.
     etat : dict
-        État du bassin versants et du réservoir à un pas de temps.
+        État du bassin versant et du réservoir à un pas de temps.
     nb_pas_total : float
         Nombre de pas des temps total.
     s : dict
         Sorties de simulation.
     etats : dict
-        États du bassin versants et du réservoir pout tous les pas de temps.
+        États du bassin versant et du réservoir pout tous les pas de temps.
     deltas : dict
         Composants du bilan massique.
 
@@ -393,34 +393,34 @@ def hsami_simulation(
         - 'nb_pas_par_jour' : entier, nombre de pas de temps par jour.
 
     s : dict, un dictionnaire contenant les sorties de simulation avec les clés :
-        - 'Qtotal': liste de float
-        - 'Qbase': liste de float
-        - 'Qinter': liste de float
-        - 'Qsurf': liste de float
-        - 'Qreservoir': liste de float
-        - 'Qglace': liste de float
-        - 'ETP': liste de float
-        - 'ETRtotal': liste de float
-        - 'ETRsublim': liste de float
-        - 'ETRPsurN': liste de float
-        - 'ETRintercept': liste de float
-        - 'ETRtranspir': liste de float
-        - 'ETRreservoir': liste de float
-        - 'ETRmhumide': liste de float
-        - 'Qmh': liste de float
+        - 'Qtotal' : liste de float
+        - 'Qbase' : liste de float
+        - 'Qinter' : liste de float
+        - 'Qsurf' : liste de float
+        - 'Qreservoir' : liste de float
+        - 'Qglace' : liste de float
+        - 'ETP' : liste de float
+        - 'ETRtotal' : liste de float
+        - 'ETRsublim' : liste de float
+        - 'ETRPsurN' : liste de float
+        - 'ETRintercept' : liste de float
+        - 'ETRtranspir' : liste de float
+        - 'ETRreservoir' : liste de float
+        - 'ETRmhumide' : liste de float
+        - 'Qmh' : liste de float
 
     etats : dict
         Un dictionnaire contenant les états de la simulation à chaque pas de temps.
 
     deltas : dict
         Un dictionnaire contenant les composants du bilan massique avec les clés :
-        - 'total': liste de float
-        - 'glace': liste de float
-        - 'interception': liste de float
-        - 'ruissellement': liste de float
-        - 'vertical': liste de float
-        - 'mhumide': liste de float
-        - 'horizontal': liste de float
+        - 'total' : liste de float
+        - 'glace' : liste de float
+        - 'interception' : liste de float
+        - 'ruissellement' : liste de float
+        - 'vertical' : liste de float
+        - 'mhumide' : liste de float
+        - 'horizontal' : liste de float
     """
     pas = 1
     for i_pas in range(nb_pas_total):

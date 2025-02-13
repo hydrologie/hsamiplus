@@ -160,7 +160,8 @@ values = [
 ]
 
 [tool.codespell]
-ignore-words-list = "astroid,socio-economic"
+ignore-words-list = "ajustement,astroid,avance,calculs,celle,celcius,complet,constitue,comparaison,correspondant,fixe,fonction,fonctions,formule,horizontale,infilitration,initiales,invalide,normale,parametres,potentiel,processus,projet,raison,reste,socio-economic,somme"
+skip = "docs/notebooks/*.ipynb,docs/notebooks/*.rst,data/*.ipynb"
 
 [tool.coverage.paths]
 source = ["src/hsamiplus/", "*/site-packages/hsamiplus/"]

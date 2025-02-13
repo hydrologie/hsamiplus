@@ -1,11 +1,7 @@
-import sys
 import unittest
-import warnings
-from datetime import datetime
 from unittest.mock import patch
 
 import numpy as np
-import pytest
 
 from hsamiplus.hsami2_noyau import etp_glace_interception, hsami2_noyau
 
