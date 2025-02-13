@@ -303,13 +303,15 @@ def dj_hsami(  # noqa: C901
         derniere_neige = 0
 
     # Sur la premiere ligne de la sixiéme colonne, on peut retrouver un relevé de neige
-    if (len(meteo["bassin"]) == 6) and (meteo["bassin"][5] >= 0):
-        # Si c'est le cas, on met à jour la neige au sol en fonction du relevé
-        delta_neige = neige_au_sol_totale - neige_au_sol
-        neige_au_sol = meteo["bassin"][5]
+    if len(meteo["bassin"]) == 6:
+        if isinstance(meteo["bassin"][5], (int, float)):
+            if meteo["bassin"][5] >= 0:
+                # Si c'est le cas, on met à jour la neige au sol en fonction du relevé
+                delta_neige = neige_au_sol_totale - neige_au_sol
+                neige_au_sol = meteo["bassin"][5]
 
-        # On conserve l'écart
-        neige_au_sol_totale = neige_au_sol + delta_neige
+                # On conserve l'écart
+                neige_au_sol_totale = neige_au_sol + delta_neige
 
     # Ajout de la précipitation neigeuse
     neige_au_sol = neige_au_sol + neige
@@ -774,10 +776,10 @@ def mdj_alt(  # noqa: C901
     if modules["een"] == "mdj":
         for i_z in range(n):
             taux_de_fonte[i_z] = (
-                param[27 + i_z] / 100
+                param[28 + i_z] / 100
             )  # Taux de fonte - milieu(i_z) # /100 pour cm --> m/degC/jour
             temperature_de_fonte[i_z] = param[
-                30 + i_z
+                31 + i_z
             ]  # Température de fonte - milieu(i_z) # degC
 
     elif modules["een"] == "alt":
@@ -925,23 +927,25 @@ def mdj_alt(  # noqa: C901
         # Lors d'une mise é jour avec le modéle mdj, toutes les occupations se
         # retrouvent avec la méme valeur moyenne.
 
-        if len(meteo["bassin"]) == 6 and meteo["bassin"][5] >= 0:
-            # Si c'est le cas, on met à jour la neige au sol en fonction du relevé
-            # Mise à jour en pondérant selon les quantités présentes dans les milieux
-            # avant la maj.
-            if nas_moy != 0:
-                facteur_maj = (meteo["bassin"][5] / 00) / nas_moy
-            else:
-                facteur_maj = 1
-            neige_au_sol = neige_au_sol * facteur_maj
+        if len(meteo["bassin"]) == 6:
+            if isinstance(meteo["bassin"][5], (int, float)):
+                if meteo["bassin"][5] >= 0:
+                    # Si c'est le cas, on met à jour la neige au sol en fonction du relevé
+                    # Mise à jour en pondérant selon les quantités présentes dans les milieux
+                    # avant la maj.
+                    if nas_moy != 0:
+                        facteur_maj = (meteo["bassin"][5] / 00) / nas_moy
+                    else:
+                        facteur_maj = 1
+                    neige_au_sol = neige_au_sol * facteur_maj
 
-            # Hypothèse : la densité de la neige est la même qu'avant la mise à
-            # jour. S'il n'y avait plus de neige simulée avant la maj, la
-            # densité est estimée à 300 kg/m3, qui est une valeur moyenne vers
-            # la mi et fin de l'hiver.
-            if dennei <= 0:
-                dennei = 0.3
-            couvert_neige = neige_au_sol / dennei
+                    # Hypothèse : la densité de la neige est la même qu'avant la mise à
+                    # jour. S'il n'y avait plus de neige simulée avant la maj, la
+                    # densité est estimée à 300 kg/m3, qui est une valeur moyenne vers
+                    # la mi et fin de l'hiver.
+                    if dennei <= 0:
+                        dennei = 0.3
+                    couvert_neige = neige_au_sol / dennei
 
         # =====================================================
         # Gel du sol et dégel du sol selon un modéle degré-jour
@@ -1034,7 +1038,7 @@ def mdj_alt(  # noqa: C901
                 alpha = conductivite_neige(dennei * rho_w) / (
                     dennei * rho_w * capacite_thermique_massique_eau_solide
                 )
-                erf = erf(hneige / (2 * np.sqrt(alpha * pdts)))
+                erf = calcul_erf(hneige / (2 * np.sqrt(alpha * pdts)))
                 # Ex1. : modules['een'] = 'mdj', i_z = 1, alpha = 3.2224e-07, erf = 0.5806
                 #                             i_z = 2, alpha = 3.2492e-07, erf = 0.5843
                 #                             i_z = 3, alpha = 3.2492e-07, erf = 0.5843
@@ -1085,7 +1089,7 @@ def mdj_alt(  # noqa: C901
             if modules["radiation"] == "mdj":
                 # Calcul d'un indice de radiation sophistiqué qui tient compte
                 # de la pente du bassin et de l'orientation
-                indice_radiation = indice_radiation(
+                indice_radiation = calcul_indice_radiation(
                     jj,
                     physio["latitude"],
                     physio["i_orientation_bv"],
@@ -1106,7 +1110,14 @@ def mdj_alt(  # noqa: C901
                 #        modules['een'] = 'alt', méme chose que pour 'mdj'
 
             albedo_neige = albedo_een(
-                albedo_neige, drel, neige_au_sol, neige, pas_de_temps, pluie, tneige
+                albedo_neige,
+                drel,
+                neige_au_sol,
+                neige,
+                pas_de_temps,
+                pluie,
+                tneige,
+                fonte,
             )
             # Ex1. : modules['een'] = 'mdj', i_z = 1, albedo_neige = 0.7453
             #                                i_z = 2, albedo_neige = 0.7453
@@ -1352,7 +1363,7 @@ def mdj_alt(  # noqa: C901
                                     * rho_w
                                     * capacite_thermique_massique_eau_solide
                                 )
-                                erf = erf(
+                                erf = calcul_erf(
                                     (eeg[i_g] / denglace) / (2 * np.sqrt(alpha * pdts))
                                 )
 
@@ -1480,7 +1491,7 @@ def mdj_alt(  # noqa: C901
                                 * rho_w
                                 * capacite_thermique_massique_eau_solide
                             )
-                            erf = erf(
+                            erf = calcul_erf(
                                 (eeg[i_g] / denglace) / (2 * np.sqrt(alpha * pdts))
                             )
 
@@ -1866,7 +1877,7 @@ def conductivite_neige(densite):
     return conductivite
 
 
-def erf(x):
+def calcul_erf(x):
     """
     Approximation rationnelle.
 
@@ -1891,7 +1902,7 @@ def erf(x):
     return valeur
 
 
-def indice_radiation(jour, latitude, i_orientation_bv, pas_de_temps, pente):
+def calcul_indice_radiation(jour, latitude, i_orientation_bv, pas_de_temps, pente):
     """
     Calcul de l'indice de radiation pour une surface.
 
@@ -2056,8 +2067,8 @@ def indice_radiation(jour, latitude, i_orientation_bv, pas_de_temps, pente):
     return indice_radiation
 
 
-def albedo_een(albedo, drel, een, neige, pas_de_temps, pluie, tneige):
-    """
+def albedo_een(albedo, drel, een, neige, pas_de_temps, pluie, tneige, *args):
+    r"""
     Calculer l'albedo de l'EEN.
 
     Parameters
@@ -2076,6 +2087,8 @@ def albedo_een(albedo, drel, een, neige, pas_de_temps, pluie, tneige):
         Précipitations liquides.
     tneige : float
         Température de la neige.
+    \*args : list
+        Fonte.
 
     Returns
     -------
@@ -2083,7 +2096,13 @@ def albedo_een(albedo, drel, een, neige, pas_de_temps, pluie, tneige):
         Albedo d'een.
     """
     eq_neige = neige * 1000
-    st_neige = (een - neige / drel) * 1000
+
+    # HSAMI_v1.2.0
+    if len(args) > 0:  # Correction du bogue mdj avec de la neige en été
+        fonte = args[0]
+        st_neige = (een - neige - fonte / drel) * 1000
+    else:  # Ancienne version
+        st_neige = (een - neige / drel) * 1000
 
     if pluie > 0 or tneige >= 0:
         liquide = 1
@@ -2184,7 +2203,7 @@ def pluie_neige(tmin, tmax, prec):
 
     elif isinstance(prec, list) | isinstance(prec, np.ndarray):
         # Températures moyennes
-        tmoy = np.array([(tmin + tmax) / 2])
+        tmoy = np.array((tmin + tmax) / 2)
 
         # Indices entre -2 et 2 deg C
         indbetween = np.where((tmoy >= -2) & (tmoy <= 2))[0]
