@@ -53,7 +53,7 @@ def hsamibin(path, filename):
 
     # Write output file
     output = {"S": s, "etats": etats, "deltas": deltas}
-    output_json = json.dumps(output)
+    output_json = json.dumps(output, indent=4)
 
     output_file = "output_" + date.strftime("%d_%m_%Y") + ".json"
 
@@ -77,7 +77,6 @@ if __name__ == "__main__":  # pragma: no cover
     path = "../../data"
 
     filename = "projet.json"
-    # filename = 'input_bassin1045_20241029.json'
 
     s, etats, deltas = hsamibin(path, filename)
 
