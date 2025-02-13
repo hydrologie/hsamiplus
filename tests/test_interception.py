@@ -6,14 +6,14 @@ import numpy as np
 from hsamiplus.hsami_interception import (
     albedo_een,
     calcul_densite_neige,
+    calcul_erf,
+    calcul_indice_radiation,
     conductivite_neige,
     degel_sol,
     dj_hsami,
-    erf,
     gel_neige,
     gel_sol,
     hsami_interception,
-    indice_radiation,
     mdj_alt,
     percolation_eau_fonte,
     pluie_neige,
@@ -383,10 +383,55 @@ class TestHsamiInterception(unittest.TestCase):
         self.assertIsInstance(apport_vertical, np.ndarray)
         self.assertEqual(apport_vertical.shape, (5,))
 
+        # potentiel_fonte < 0 : line 464
+        self.meteo = {
+            "bassin": [-9.3, -3.5, 2.3, 0.0, 0.5, -1],
+            "reservoir": [-9.3, -3.5, 2.3, 0.0, 0.5, -1],
+        }
+        eau_surface, demande_eau, etat, etr, apport_vertical = dj_hsami(
+            self.modules,
+            self.meteo,
+            self.etat,
+            np.zeros(5),
+            np.zeros(5),
+            self.duree,
+            self.param[1],
+            self.param[2],
+            self.param[3],
+            self.param[4],
+            self.param[5],
+            self.param[6],
+            self.param[7],
+            self.param[11],
+            self.etat["sol"],
+            self.meteo["bassin"][0],  # t_min,
+            self.meteo["bassin"][1],  # t_max,
+            self.meteo["bassin"][2],  # pluie,
+            self.meteo["bassin"][3],  # neige,
+            0.5,  # soleil
+            0.0,  # demande_eau
+            0.0,  # demande_reservoir
+            2.5,  # self.etat["neige_au_sol"],
+            self.etat["fonte"],
+            2.72,  # etat["neige_au_sol_totale"],
+            self.etat["fonte_totale"],
+            self.etat["derniere_neige"],
+            self.etat["eeg"],
+            self.etat["gel"],
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
     def test_hsami_mdj_alt(self):
         # Module een: mdj
         self.modules["een"] = "mdj"
         # Module radiation : hsami
+        # neige_au_sol == 0 : lines 1444 - 1568
 
         eau_surface, demande_eau, etat, etr, apport_vertical = mdj_alt(
             self.param,
@@ -537,6 +582,50 @@ class TestHsamiInterception(unittest.TestCase):
             0.0,  # demande_eau
             0.0,  # demande_reservoir
             self.etat["neige_au_sol"],
+            self.etat["fonte"],
+            self.etat["derniere_neige"],
+            self.etat["eeg"],
+            self.etat["gel"],
+        )
+        self.assertIsInstance(eau_surface, float)
+        self.assertIsInstance(demande_eau, float)
+        self.assertIsInstance(etat, dict)
+        self.assertIsInstance(etr, np.ndarray)
+        self.assertEqual(etr.shape, (5,))
+        self.assertIsInstance(apport_vertical, np.ndarray)
+        self.assertEqual(apport_vertical.shape, (5,))
+
+        # neige_au_sol > 0 or neige > 0 : lines 983 - 1443
+        self.modules["een"] = "mdj"
+        etat["neige_au_sol"] = 2.8
+        n_occupation = len(self.physio["occupation"])
+        self.etat["mdj"]["neige_au_sol"] = n_occupation * [self.etat["neige_au_sol"]]
+        self.etat["mdj"]["couvert_neige"] = n_occupation * [0.19]
+
+        eau_surface, demande_eau, etat, etr, apport_vertical = mdj_alt(
+            self.param,
+            self.modules,
+            self.meteo,
+            self.physio,
+            self.etat,
+            np.zeros(5),
+            np.zeros(5),
+            self.duree,
+            self.pdts,
+            self.jj,
+            self.pas_de_temps,
+            self.param[1],
+            self.param[4],
+            self.param[11],
+            self.etat["sol"],
+            self.t_min,
+            self.t_max,
+            self.pluie,
+            self.neige,
+            0.0,  # soleil
+            0.0,  # demande_eau
+            0.0,  # demande_reservoir
+            etat["neige_au_sol"],
             self.etat["fonte"],
             self.etat["derniere_neige"],
             self.etat["eeg"],
@@ -610,11 +699,11 @@ class TestHsamiInterception(unittest.TestCase):
         self.assertIsNotNone(result)
 
     def test_erf(self):
-        result = erf(1)
+        result = calcul_erf(1)
         self.assertIsNotNone(result)
 
     def test_indice_radiation(self):
-        result = indice_radiation(
+        result = calcul_indice_radiation(
             self.jj,
             self.physio["latitude"],
             self.physio["i_orientation_bv"],
@@ -636,13 +725,79 @@ class TestHsamiInterception(unittest.TestCase):
         )
         self.assertIsNotNone(result)
 
+        # st_neige > 0 : line 2092
+        self.meteo = {
+            "bassin": [-3.3, 1.5, 1.3, 3.0, 0.5, -1],
+            "reservoir": [-3.3, 1.5, 1.0, 3.0, 0.5, -1],
+        }
+        self.physio["albedo_sol"] = 0.45
+        self.etat["neige_au_sol"] = 12.8
+
+        tmoy = (self.t_max + self.t_min) / 2
+        result = albedo_een(
+            self.physio["albedo_sol"],
+            calcul_densite_neige(tmoy) / 1000,
+            self.etat["neige_au_sol"],
+            self.neige,
+            24 / self.nb_pas,
+            self.pluie,
+            tmoy,
+        )
+        self.assertIsNotNone(result)
+
     def test_calcul_densite_neige(self):
+        # temperature < -17 0 : line 3130
+        self.t_max = -18.5
+        self.t_min = -25.4
+        result = calcul_densite_neige((self.t_max + self.t_min) / 2)
+
+        self.assertIsNotNone(result)
+
+        # temperature > 0 : line 3132
+        self.t_max = 18.5
+        self.t_min = 25.4
+        result = calcul_densite_neige((self.t_max + self.t_min) / 2)
+        self.assertIsNotNone(result)
+
+        # temperature > 0  and temperature < -17: line 3134
+        self.t_max = 8.5
+        self.t_min = 5.4
         result = calcul_densite_neige((self.t_max + self.t_min) / 2)
         self.assertIsNotNone(result)
 
     def test_pluie_neige(self):
+        # isinstance(prec, float) : line 2176
+        self.meteo = {
+            "bassin": [3.3, 15.5, 12.3, 0.0, 0.5, -1],
+            "reservoir": [3.3, 15.5, 12.0, 0.0, 0.5, -1],
+        }
         result = pluie_neige(
             self.t_max, self.t_min, self.pluie / 100 + self.neige / 100
+        )
+        self.assertIsNotNone(result)
+
+        # isinstance(prec, list) | isinstance(prec, np.ndarray): line 2185
+        self.t_max = [3.8, 1.8, 2.2, 6.1, 0.0, -2.7, 3.8, 2.7, 0.5, 6.1, 2.2]
+        self.t_min = [
+            -7.2,
+            -4.9,
+            -1.1,
+            -0.5,
+            -0.5,
+            -17.2,
+            -14.4,
+            -11.0,
+            -14.9,
+            -12.7,
+            -7.7,
+        ]
+        self.pluie = [0.1, 0.2, 0.5, 0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3]
+        self.neige = [0.4, 0.2, 0.2, 0.0, 0.0, 0.0, 0.1, 0.3, 0.0, 0.0, 0.5]
+
+        result = pluie_neige(
+            np.array(self.t_max),
+            np.array(self.t_min),
+            np.array(self.pluie) / 100.0 + np.array(self.neige) / 100.0,
         )
         self.assertIsNotNone(result)
 
