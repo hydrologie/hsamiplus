@@ -190,21 +190,19 @@ def hsami2_noyau(projet, etat):
         'stefan'
         'mylake'
 
-    projet['physio']
-    Structure contenant des variables physiographiques du bassin
-    ** Toutes les variables physiographiques peuvent
-    étre facultatives, dépamment des modules utilisés.
-    latitude :         Latitude moyenne (degrés, scalaire)
-    altitude :         Altitude moyenne (m, scalaire)
-    albedo_sol :       Albédo du sol (fraction décimale, scalaire)
-    i_orientation_bv : Indice d'orientation
-    pente_bv :         Pente moyenne (degrés, scalaire)
-    occupation :       Fractions d'occupation des milieux (fraction, vecteur de 1x2 ou 1x3)
-    niveau :           Niveau du réservoir (m, scalaire)
-    coeff :            Coefficients de l'équation de la courbe d'emmagasinement (vecteur 1 x 3)
-    samax :            Surface maximale du MHE (km2, scalaire)
-    occupation_bande : Pourcentage d'occupation par bande d'altitude
-    altitude_bande :   Altitude de chaque bande
+    physio :     Structure contenant des variables physiographiques du bassin
+        Toutes les variables physiographiques peuvent étre facultatives, dépamment des modules utilisés.
+        - latitude :         Latitude moyenne (degrés, scalaire)
+        - altitude :         Altitude moyenne (m, scalaire)
+        - albedo_sol :       Albédo du sol (fraction décimale, scalaire)
+        - i_orientation_bv : Indice d'orientation
+        - pente_bv :         Pente moyenne (degrés, scalaire)
+        - occupation :       Fractions d'occupation des milieux (fraction, vecteur de 1x2 ou 1x3)
+        - niveau :           Niveau du réservoir (m, scalaire)
+        - coeff :            Coefficients de l'équation de la courbe d'emmagasinement (vecteur 1 x 3)
+        - samax :            Surface maximale du MHE (km2, scalaire)
+        - occupation_bande : Pourcentage d'occupation par bande d'altitude
+        - altitude_bande :   Altitude de chaque bande
 
     etat : états du bassin versants et du réservoir
         - etat['eau_hydrogrammes']            : Eau en transit dans les HU (cm, matrice de mémoire x 2, ou mémoire x 3 si module['mhumide'] = 1)
