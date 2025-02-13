@@ -7,8 +7,8 @@ app = typer.Typer()
 console = Console()
 
 
-@app.command()
-def main():
+@app.command()  # type: ignore[misc]
+def main() -> None:
     """Console script for hsamiplus."""
     console.print(
         "Replace this message by putting your code into hsamiplus.cli.main",
