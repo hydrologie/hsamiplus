@@ -50,6 +50,40 @@ class TestHsamiMhumide(unittest.TestCase):
         self.assertTrue("mhumide" in etat)
         self.assertTrue(all(isinstance(x, float) for x in etr))
 
+        # offre_evap > demande
+        self.demande = 52.423
+        apport, etat, etr = hsami_mhumide(
+            self.apport,
+            self.param,
+            self.etat,
+            self.demande,
+            self.etr,
+            self.physio,
+            self.superficie,
+        )
+
+        self.assertTrue(all(isinstance(x, float) for x in apport[:3]))
+        self.assertTrue("mh_vol" in etat)
+        self.assertTrue("ratio_qbase" in etat)
+
+        # v_actuel > v_max
+        self.demande = 0.1317
+        self.etat["mh_surf"] = 2450.0
+        self.etat["mh_vol"] = 2.45e08
+
+        apport, etat, etr = hsami_mhumide(
+            self.apport,
+            self.param,
+            self.etat,
+            self.demande,
+            self.etr,
+            self.physio,
+            self.superficie,
+        )
+
+        self.assertTrue(all(isinstance(x, float) for x in apport[:3]))
+        self.assertTrue("mh_vol" in etat)
+
 
 if __name__ == "__main__":
     unittest.main()
