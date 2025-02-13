@@ -208,6 +208,7 @@ def hsami2(projet):
         "ETRreservoir": [],
         "ETRmhumide": [],
         "Qmh": [],
+        "Dates": projet["dates"],
     }
 
     deltas = {
