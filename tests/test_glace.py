@@ -88,6 +88,20 @@ class TestHsamiGlace(unittest.TestCase):
         self.assertIsInstance(bassin_vers_reservoir, float)
         self.assertIsInstance(etats, dict)
 
+        # delta_glace < 0, il y a restitution, line 124
+        self.etats["reservoir_superficie_glace"] = 450.0
+        glace_vers_reservoir, bassin_vers_reservoir, etats = hsami_glace(
+            self.modules,
+            self.superficie,
+            self.etats,
+            self.meteo,
+            self.physio,
+            self.param,
+        )
+        self.assertEqual(glace_vers_reservoir, 0)
+        self.assertIsInstance(bassin_vers_reservoir, float)
+        self.assertIsInstance(etats, dict)
+
     def test_hsami_glace_with_reservoir_mylake(self):
         self.modules["glace_reservoir"] = "my_lake"
 
@@ -103,8 +117,6 @@ class TestHsamiGlace(unittest.TestCase):
         self.assertIsInstance(bassin_vers_reservoir, float)
         self.assertIsInstance(etats, dict)
 
-        # delta_glace < 0
-
         # superficie_fixe
         glace_vers_reservoir, bassin_vers_reservoir, etats = hsami_glace(
             self.modules,
@@ -113,6 +125,40 @@ class TestHsamiGlace(unittest.TestCase):
         )
         self.assertEqual(glace_vers_reservoir, 0)
         self.assertIsInstance(bassin_vers_reservoir, float)
+        self.assertIsInstance(etats, dict)
+
+        # t_a <= 0, et epaisseur_glace > 0 : line 322
+        self.etats["reservoir_epaisseur_glace"] = 5.2
+
+        glace_vers_reservoir, bassin_vers_reservoir, etats = hsami_glace(
+            self.modules,
+            self.superficie,
+            self.etats,
+            self.meteo,
+            self.physio,
+            self.param,
+        )
+        self.assertIsInstance(glace_vers_reservoir, float)
+        self.assertIsInstance(bassin_vers_reservoir, float)
+        self.assertIsInstance(etats, dict)
+
+        # t_a > 0, il fait "chaud" et epaisseur_glace > 0 : line 351
+        self.meteo = {
+            "bassin": [0.30, 0.90, 2.0, 0.0, 0.5, -1.0],
+            "reservoir": [0.30, 0.90, 2.0, 0.0, 0.5, -1.0],
+        }
+        self.etats["reservoir_epaisseur_glace"] = 5.2
+
+        glace_vers_reservoir, bassin_vers_reservoir, etats = hsami_glace(
+            self.modules,
+            self.superficie,
+            self.etats,
+            self.meteo,
+            self.physio,
+            self.param,
+        )
+        self.assertEqual(glace_vers_reservoir, 0)
+        self.assertEqual(bassin_vers_reservoir, 0)
         self.assertIsInstance(etats, dict)
 
         self.modules["een"] = "unknown"
