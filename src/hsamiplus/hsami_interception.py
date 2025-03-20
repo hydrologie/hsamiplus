@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from math import ceil
+
 import numpy as np
 
 
@@ -407,7 +409,9 @@ def dj_hsami(  # noqa: C901
             aire_enneigee = effet_redoux_sur_aire_enneigee * (
                 1 - fonte_totale / neige_au_sol_totale
             )
-            aire_enneigee = max(0.1, min(aire_enneigee, 1))
+            aire_enneigee = max(
+                0.1, min(i for i in [aire_enneigee, 1] if i is not np.nan)
+            )
 
             # Estimation de l'accélération de la fonte causée par la radiation solaire
             effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
@@ -886,7 +890,7 @@ def mdj_alt(  # noqa: C901
         albedo_neige = etat[modules["een"]]["albedo_neige"][i_z]
         energie_neige = etat[modules["een"]]["energie_neige"][i_z]
 
-        if i_z in range(n):  # La glace évolue avec le milieu le plus ouvert
+        if i_z == n - 1:  # La glace évolue avec le milieu le plus ouvert
             energie_glace = etat[modules["een"]]["energie_glace"]
 
         sol = etat["sol"][0]
@@ -896,7 +900,7 @@ def mdj_alt(  # noqa: C901
         # Initialisation de la sublimation et de l'etr pluie sur neige
         # pour le milieu i_z, sinon les valeurs du milieu précédent sont
         # réutilisées.
-        etr[0:1] = 0
+        etr[0:2] = 0
 
         # Calcul des températures par bande d'altitude et partition de
         # la précipitation
@@ -907,7 +911,7 @@ def mdj_alt(  # noqa: C901
             t_max = meteo["bassin"][1]
 
             # Récupération des altitudes
-            alt_milieu = physio["altitude_bande"][int(n / 2)]
+            alt_milieu = physio["altitude_bande"][ceil(n / 2) - 1]
             alt_bande = physio["altitude_bande"][i_z]
 
             # Application du gradient de température de 0.6°C/100m (E. Paquet, 2004)
@@ -1252,27 +1256,27 @@ def mdj_alt(  # noqa: C901
                     couvert_neige = couvert_neige - fonte / dennei
                     fonte = 0  # toute l'eau retenue est évaporée.
 
-                    demande = 0  #
+                demande = 0  #
 
-                    # Condition déplacée le 2016-08-12. Elle était avant la boucle précédente.
-                    # é l'automne, lors de la formation du couvert, il
-                    # peut qu'il y a des instabilités numériques en raison de
-                    # l'estimation de la densité d'une quantité de
-                    # neige infinitésimale. Dans ce cas le couvert de
-                    # neige peut devenir négatif (genre -1x10-15) quand on soustrait fonte/dennei.
-                    if couvert_neige < 0:
-                        # Précaution ajoutée pour éviter la neige nulle. N'arrive
-                        # jamais pour les bassins testés. Conditions mises au cas
-                        # oé. (2016-08-11: C'est arrivé avec un scénario climatique dans le lot2)
-                        couvert_neige = 0
-                        neige_au_sol = 0
+                # Condition déplacée le 2016-08-12. Elle était avant la boucle précédente.
+                # é l'automne, lors de la formation du couvert, il
+                # peut qu'il y a des instabilités numériques en raison de
+                # l'estimation de la densité d'une quantité de
+                # neige infinitésimale. Dans ce cas le couvert de
+                # neige peut devenir négatif (genre -1x10-15) quand on soustrait fonte/dennei.
+                if couvert_neige < 0:
+                    # Précaution ajoutée pour éviter la neige nulle. N'arrive
+                    # jamais pour les bassins testés. Conditions mises au cas
+                    # oé. (2016-08-11: C'est arrivé avec un scénario climatique dans le lot2)
+                    couvert_neige = 0
+                    neige_au_sol = 0
 
-                    # -------------------------------
-                    # Ajustement du bilan énergétique
-                    # -------------------------------
-                    energie_neige = energie_neige - (
-                        etr[1] * rho_w * chaleur_latente_evaporation
-                    )
+                # -------------------------------
+                # Ajustement du bilan énergétique
+                # -------------------------------
+                energie_neige = energie_neige - (
+                    etr[1] * rho_w * chaleur_latente_evaporation
+                )
 
             else:
                 # ===============================================
@@ -2196,11 +2200,19 @@ def pluie_neige(tmin, tmax, prec):
     if isinstance(prec, float):
         # Températures moyennes
         tmoy = (tmin + tmax) / 2
-
-        # Proportion lpuie / neige
-        alpha = (tmoy + 2) / 4
-        pluie = alpha * prec
-        neige = (1 - alpha) * prec
+        if tmoy < -2:
+            # Toute la précipitation est de la neige
+            pluie = 0
+            neige = prec
+        elif tmoy > 2:
+            # Toute la précipitation est de la pluie
+            pluie = prec
+            neige = 0
+        else:
+            # Proportion de la puie / neige
+            alpha = (tmoy + 2) / 4
+            pluie = alpha * prec
+            neige = (1 - alpha) * prec
 
     elif isinstance(prec, list) | isinstance(prec, np.ndarray):
         # Températures moyennes
