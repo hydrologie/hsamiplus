@@ -6,7 +6,7 @@ import datetime
 import json
 from pathlib import Path
 
-from .hsami2 import hsami2
+from hsamiplus.hsami2 import hsami2
 
 
 def hsamibin(path, filename):
@@ -74,9 +74,11 @@ if __name__ == "__main__":  # pragma: no cover
 
     start_time = time.time()
 
-    path = "../../data"
+    # path = "../../data"
+    path = "./data"
 
     filename = "projet.json"
+    # filename = "Bassin1014_mdj_projet.json"
 
     s, etats, deltas = hsamibin(path, filename)
 
