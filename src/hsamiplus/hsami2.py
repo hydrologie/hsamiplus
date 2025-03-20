@@ -6,7 +6,7 @@ from copy import copy
 
 import numpy as np
 
-from .hsami2_noyau import hsami2_noyau
+from hsamiplus.hsami2_noyau import hsami2_noyau
 
 
 def hsami2(projet):
@@ -86,6 +86,12 @@ def hsami2(projet):
         superficie.append(0)
 
     param = projet["param"]
+
+    # Replace missing values by np.nan
+    for i, param_i in enumerate(param):
+        if param_i is None:
+            param[i] = np.nan
+
     physio = projet["physio"]
 
     # Valeurs par défaut dans modules
