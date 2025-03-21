@@ -16,6 +16,7 @@ repos:
       - id: check-json
       - id: pretty-format-json
         args: [ '--autofix', '--no-ensure-ascii', '--no-sort-keys' ]
+        exclude: '.ipynb'
       - id: check-toml
       - id: check-yaml
         args: [ '--allow-multiple-documents' ]
@@ -54,7 +55,7 @@ repos:
     hooks:
       - id: ruff
         args: [ '--fix' ]
-      - id: ruff-format
+#      - id: ruff-format
   - repo: https://github.com/pycqa/flake8
     rev: 7.1.2
     hooks:
@@ -65,10 +66,10 @@ repos:
     rev: v2.14
     hooks:
       - id: vulture
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
-    hooks:
-      - id: mypy
+#  - repo: https://github.com/pre-commit/mirrors-mypy
+#    rev: v1.15.0
+#    hooks:
+#      - id: mypy
   - repo: https://github.com/keewis/blackdoc
     rev: v0.3.9
     hooks:

@@ -1,0 +1,20 @@
+ID :                     947587
+memoire :	         10
+nb_pas_par_jour :        1
+superficie_bv :          2640.0
+superficie_reservoir :   438.0
+niveau_reservoir :
+coeff_reservoir :        -0.0119 52.095 -16814
+latitude_bv :             47.1943
+altitude_bv :             390.90
+pente_bv :                1.8
+indice_orientation_bv :   1
+albedo_sol :              0.7
+occupation_bv : 	  0.083, 0.503, 0.414
+occupation_bande :        0.003 0.015 0.043 0.194 0.745
+altitude_bande :          581 530 479 429 379
+surface_maximale_mhe :    242.97
+hydrogramme_surface :     0.41, 0.26, 0.15, 0.08, 0.04, 0.02, 0.01, 0.0, 0.0, 0.0
+hydrogramme_inter :       0.20, 0.18, 0.15, 0.12, 0.10, 0.08, 0.04, 0.04, 0.03, 0.03
+fichier_meteo_bv :        meteo_file.csv
+fichier_meteo_reservoir : meteo_file.csv
