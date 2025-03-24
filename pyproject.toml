@@ -46,7 +46,7 @@ dev = [
   "flake8 >=7.1.1",
   "flake8-rst-docstrings >=0.3.0",
   "flit >=3.10.1,<4.0",
-  "isort ==6.0.0",
+  "isort ==6.0.1",
   "mypy >=1.14.1",
   "numpydoc >=1.8.0",
   "pandas >=2.2.0",
@@ -160,7 +160,7 @@ values = [
 ]
 
 [tool.codespell]
-ignore-words-list = "ajustement,astroid,avance,calculs,celle,celcius,complet,constitue,comparaison,correspondant,fixe,fonction,fonctions,formule,horizontale,infilitration,initiales,invalide,normale,parametres,potentiel,processus,projet,raison,reste,socio-economic,somme"
+ignore-words-list = "ajustement,astroid,avance,calculs,celle,celcius,complet,constitue,comparaison,correspondant,fixe,fonction,fonctions,formule,horizontale,infilitration,initiales,invalide,lamda,normale,parametres,potentiel,processus,projet,raison,reste,socio-economic,somme"
 skip = "docs/notebooks/*.ipynb,docs/notebooks/*.rst,data/*.ipynb"
 
 [tool.coverage.paths]
