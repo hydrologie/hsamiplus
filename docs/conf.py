@@ -41,6 +41,8 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx_codeautolink',
     'sphinx_copybutton',
+    'nbsphinx',
+    'IPython.sphinxext.ipython_console_highlighting'
 ]
 
 autosectionlabel_prefix_document = True

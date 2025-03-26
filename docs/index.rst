@@ -8,6 +8,7 @@ Welcome to hsamiplus's documentation!
    readme
    installation
    usage
+   notebooks/index
    contributing
    releasing
    authors
