@@ -1,8 +1,8 @@
-Usage
-=====
+Examples
+========
 
 .. toctree::
-    :maxdepth: 1
-    :numbered:
+   :maxdepth: 1
+   :numbered:
 
-    exemple
+   exemple

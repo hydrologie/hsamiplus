@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from math import ceil
+
 import numpy as np
 
 
@@ -34,7 +36,7 @@ def hsami_interception(nb_pas, jj, param, meteo, etp, etat, modules, physio):
         Eau disponible à la surface pour évaporation, ruissellement et infiltration.
     demande_eau : float
         Demande en eau restante.
-    etat :  dict
+    etat : dict
         États du bassin versants et du réservoir.
     apport_vertical : list
         Lames d'eau à moduler par les hydrogrammes unitaires.
@@ -209,7 +211,7 @@ def dj_hsami(  # noqa: C901
     gel,
 ):
     """
-    Module "hsami" et  "dj" pour calculer "een".
+    Module "hsami" et "dj" pour calculer "een".
 
     Parameters
     ----------
@@ -267,7 +269,7 @@ def dj_hsami(  # noqa: C901
         Total de la fonte de neige pendant l'hiver.
     derniere_neige : int
         Nombre de jours depuis la derniere neige.
-    eeg : flpoat
+    eeg : float
         Équivalent en eau de la glace.
     gel : float
         Eau gelée dans la zone non saturée.
@@ -303,13 +305,15 @@ def dj_hsami(  # noqa: C901
         derniere_neige = 0
 
     # Sur la premiere ligne de la sixiéme colonne, on peut retrouver un relevé de neige
-    if (len(meteo["bassin"]) == 6) and (meteo["bassin"][5] >= 0):
-        # Si c'est le cas, on met é jour la neige au sol en fonction du relevé
-        delta_neige = neige_au_sol_totale - neige_au_sol
-        neige_au_sol = meteo["bassin"][5]
+    if len(meteo["bassin"]) == 6:
+        if isinstance(meteo["bassin"][5], (int, float)):
+            if meteo["bassin"][5] >= 0:
+                # Si c'est le cas, on met à jour la neige au sol en fonction du relevé
+                delta_neige = neige_au_sol_totale - neige_au_sol
+                neige_au_sol = meteo["bassin"][5]
 
-        # On conserve l'écart
-        neige_au_sol_totale = neige_au_sol + delta_neige
+                # On conserve l'écart
+                neige_au_sol_totale = neige_au_sol + delta_neige
 
     # Ajout de la précipitation neigeuse
     neige_au_sol = neige_au_sol + neige
@@ -405,7 +409,9 @@ def dj_hsami(  # noqa: C901
             aire_enneigee = effet_redoux_sur_aire_enneigee * (
                 1 - fonte_totale / neige_au_sol_totale
             )
-            aire_enneigee = max(0.1, min(aire_enneigee, 1))
+            aire_enneigee = max(
+                0.1, min(i for i in [aire_enneigee, 1] if i is not np.nan)
+            )
 
             # Estimation de l'accélération de la fonte causée par la radiation solaire
             effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
@@ -488,7 +494,7 @@ def dj_hsami(  # noqa: C901
                 # évaporation réelle
                 demande = demande_eau * efficacite_evapo_hiver * aire_enneigee
 
-                # On satisfait d'abord la demande evaporative avec la pluie
+                # On satisfait d'abord la demande évaporative avec la pluie
                 pluie_sur_neige = pluie * aire_enneigee
 
                 if demande > 0:
@@ -774,10 +780,10 @@ def mdj_alt(  # noqa: C901
     if modules["een"] == "mdj":
         for i_z in range(n):
             taux_de_fonte[i_z] = (
-                param[27 + i_z] / 100
+                param[28 + i_z] / 100
             )  # Taux de fonte - milieu(i_z) # /100 pour cm --> m/degC/jour
             temperature_de_fonte[i_z] = param[
-                30 + i_z
+                31 + i_z
             ]  # Température de fonte - milieu(i_z) # degC
 
     elif modules["een"] == "alt":
@@ -832,7 +838,7 @@ def mdj_alt(  # noqa: C901
     #                          'alt', nas_moy = 0.1023
 
     # -----------------------------------------------------------------------
-    # Détermination du nombre de jour depuis la derniére neige pour le calcul
+    # Détermination du nombre des jours depuis la dernière neige pour le calcul
     # de la radiation si l'orientation et la pente sont inconnues
     # -----------------------------------------------------------------------
     # On tient le compte du nombre de jours sans neige.
@@ -874,7 +880,7 @@ def mdj_alt(  # noqa: C901
         # ------------------------------------------------------
 
         # Récupération des variables d'états propres aux zones qui ne sont pas
-        # remoyennées au bassin versant et qui ne sont pas recalculées dans une
+        # rémoyennées au bassin versant et qui ne sont pas recalculées dans une
         # autre fonction d'HSAMI
 
         neige_au_sol = etat[modules["een"]]["neige_au_sol"][i_z]
@@ -884,7 +890,7 @@ def mdj_alt(  # noqa: C901
         albedo_neige = etat[modules["een"]]["albedo_neige"][i_z]
         energie_neige = etat[modules["een"]]["energie_neige"][i_z]
 
-        if i_z in range(n):  # La glace évolue avec le milieu le plus ouvert
+        if i_z == n - 1:  # La glace évolue avec le milieu le plus ouvert
             energie_glace = etat[modules["een"]]["energie_glace"]
 
         sol = etat["sol"][0]
@@ -894,7 +900,7 @@ def mdj_alt(  # noqa: C901
         # Initialisation de la sublimation et de l'etr pluie sur neige
         # pour le milieu i_z, sinon les valeurs du milieu précédent sont
         # réutilisées.
-        etr[0:1] = 0
+        etr[0:2] = 0
 
         # Calcul des températures par bande d'altitude et partition de
         # la précipitation
@@ -905,7 +911,7 @@ def mdj_alt(  # noqa: C901
             t_max = meteo["bassin"][1]
 
             # Récupération des altitudes
-            alt_milieu = physio["altitude_bande"][int(n / 2)]
+            alt_milieu = physio["altitude_bande"][ceil(n / 2) - 1]
             alt_bande = physio["altitude_bande"][i_z]
 
             # Application du gradient de température de 0.6°C/100m (E. Paquet, 2004)
@@ -920,28 +926,30 @@ def mdj_alt(  # noqa: C901
         # ------------------------------
         # Mise é jour de la neige au sol
         # ------------------------------
-        # À la sixiéme colonne de la météo, on peut retrouver un
+        # À la sixième colonne de la météo, on peut retrouver un
         # relevé de neige. Le relevé est une valeur moyenne pour le bassin.
-        # Lors d'une mise é jour avec le modéle mdj, toutes les occupations se
+        # Lors d'une mise é jour avec le modèle mdj, toutes les occupations se
         # retrouvent avec la méme valeur moyenne.
 
-        if len(meteo["bassin"]) == 6 and meteo["bassin"][5] >= 0:
-            # Si c'est le cas, on met à jour la neige au sol en fonction du relevé
-            # Mise à jour en pondérant selon les quantités présentes dans les milieux
-            # avant la maj.
-            if nas_moy != 0:
-                facteur_maj = (meteo["bassin"][5] / 00) / nas_moy
-            else:
-                facteur_maj = 1
-            neige_au_sol = neige_au_sol * facteur_maj
+        if len(meteo["bassin"]) == 6:
+            if isinstance(meteo["bassin"][5], (int, float)):
+                if meteo["bassin"][5] >= 0:
+                    # Si c'est le cas, on met à jour la neige au sol en fonction du relevé
+                    # Mise à jour en pondérant selon les quantités présentes dans les milieux
+                    # avant la maj.
+                    if nas_moy != 0:
+                        facteur_maj = (meteo["bassin"][5] / 00) / nas_moy
+                    else:
+                        facteur_maj = 1
+                    neige_au_sol = neige_au_sol * facteur_maj
 
-            # Hypothèse : la densité de la neige est la même qu'avant la mise à
-            # jour. S'il n'y avait plus de neige simulée avant la maj, la
-            # densité est estimée à 300 kg/m3, qui est une valeur moyenne vers
-            # la mi et fin de l'hiver.
-            if dennei <= 0:
-                dennei = 0.3
-            couvert_neige = neige_au_sol / dennei
+                    # Hypothèse : la densité de la neige est la même qu'avant la mise à
+                    # jour. S'il n'y avait plus de neige simulée avant la maj, la
+                    # densité est estimée à 300 kg/m3, qui est une valeur moyenne vers
+                    # la mi et fin de l'hiver.
+                    if dennei <= 0:
+                        dennei = 0.3
+                    couvert_neige = neige_au_sol / dennei
 
         # =====================================================
         # Gel du sol et dégel du sol selon un modéle degré-jour
@@ -952,7 +960,7 @@ def mdj_alt(  # noqa: C901
         if dt_max <= 0:
             sol, gel = gel_sol(
                 duree, dt_max, sol_min, sol, gel, neige_au_sol * 100
-            )  # *100 car Neige au sol doit étre en cm.
+            )  # *100 car Neige au sol doit être en cm.
             # Ex1. : modules['een'] = 'mdj', i_z = 1, sol = 2.4932, gel = 0.0351
             #                                i_z = 2, sol = 2.4888, gel = 0.0395
             #                                i_z = 3, sol = 2.4888, gel = 0.0395
@@ -965,7 +973,7 @@ def mdj_alt(  # noqa: C901
 
         else:  # dt_max > 0
             if gel > 0:
-                # L'eau_degelee est toujours nulle dans la version 2 d'HSAMI
+                # L'eau_dégelée est toujours nulle dans la version 2 d'HSAMI
                 # car toute l'eau dégelée va dans l'état sol au lieu de
                 # contribuer au ruissellement intermédiaire dans
                 # hsami_meteo_apport
@@ -986,7 +994,7 @@ def mdj_alt(  # noqa: C901
             # densité du couvert de neige
             # ------------------------------------------------------
 
-            # Densite relative de la précipitation neigeuse
+            # Densité relative de la précipitation neigeuse
             drel = calcul_densite_neige(tmoy) / rho_w
             # Ex1. : modules['een'] = 'mdj', i_z = 1, drel = 0.0500
             #                                i_z = 2, drel = 0.0500
@@ -1034,7 +1042,7 @@ def mdj_alt(  # noqa: C901
                 alpha = conductivite_neige(dennei * rho_w) / (
                     dennei * rho_w * capacite_thermique_massique_eau_solide
                 )
-                erf = erf(hneige / (2 * np.sqrt(alpha * pdts)))
+                erf = calcul_erf(hneige / (2 * np.sqrt(alpha * pdts)))
                 # Ex1. : modules['een'] = 'mdj', i_z = 1, alpha = 3.2224e-07, erf = 0.5806
                 #                             i_z = 2, alpha = 3.2492e-07, erf = 0.5843
                 #                             i_z = 3, alpha = 3.2492e-07, erf = 0.5843
@@ -1085,7 +1093,7 @@ def mdj_alt(  # noqa: C901
             if modules["radiation"] == "mdj":
                 # Calcul d'un indice de radiation sophistiqué qui tient compte
                 # de la pente du bassin et de l'orientation
-                indice_radiation = indice_radiation(
+                indice_radiation = calcul_indice_radiation(
                     jj,
                     physio["latitude"],
                     physio["i_orientation_bv"],
@@ -1094,9 +1102,9 @@ def mdj_alt(  # noqa: C901
                 )
 
             elif modules["radiation"] == "hsami":
-                # Si les caractéristiques physiographiques du bassins ne sont
-                # pas Args :  dans la fonction, l'indice de radiation est
-                # calculé comme dans le hsami original
+                # Si les caractéristiques physiographiques du bassin ne sont
+                # pas Args : dans la fonction, l'indice de radiation est
+                # calculé comme dans le hsami original.
                 indice_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
                     soleil / 0.52
                 ) ** 0.33
@@ -1106,7 +1114,14 @@ def mdj_alt(  # noqa: C901
                 #        modules['een'] = 'alt', méme chose que pour 'mdj'
 
             albedo_neige = albedo_een(
-                albedo_neige, drel, neige_au_sol, neige, pas_de_temps, pluie, tneige
+                albedo_neige,
+                drel,
+                neige_au_sol,
+                neige,
+                pas_de_temps,
+                pluie,
+                tneige,
+                fonte,
             )
             # Ex1. : modules['een'] = 'mdj', i_z = 1, albedo_neige = 0.7453
             #                                i_z = 2, albedo_neige = 0.7453
@@ -1118,7 +1133,7 @@ def mdj_alt(  # noqa: C901
             # -----------------------------------------------------------
             if (
                 tmoy > temperature_de_fonte[i_z]
-            ):  # Limitation: tmoy est le méme pour toutes les zones
+            ):  # Limitation : tmoy est le méme pour toutes les zones
                 potentiel_fonte = (
                     taux_de_fonte[i_z]
                     * duree
@@ -1140,7 +1155,7 @@ def mdj_alt(  # noqa: C901
             # Calcul de la compaction
             # =======================
 
-            # Hauteur du couvert nival et de sa densite aprés compaction.
+            # Hauteur du couvert nival et de sa densité aprés compaction.
             compaction = (
                 couvert_neige
                 * constante_tassement
@@ -1153,7 +1168,7 @@ def mdj_alt(  # noqa: C901
             couvert_neige = couvert_neige - compaction
             dennei = (
                 neige_au_sol / couvert_neige
-            )  # cette valeur peut étre tres élevée quand de la pluie a été ajoutée à
+            )  # cette valeur peut être tres élevée quand de la pluie a été ajoutée à
             #  la neige_au_sol, la dennei est réajustée aprés.
 
             # Correction de la densité si elle dépasse la densité maximale (survient principalement lorsque de la pluie
@@ -1167,7 +1182,7 @@ def mdj_alt(  # noqa: C901
             # =======================================
             # Calcul de la fonte selon le mûrissement
             # =======================================
-            if energie_neige > 0:  # Le couvert est mûr
+            if energie_neige > 0:  # Le couvert est mûré
                 # ==================================
                 # Le couvert est mûr, il peut fondre
                 # ==================================
@@ -1223,7 +1238,7 @@ def mdj_alt(  # noqa: C901
                 # Ajustement pour un couvert mur aprés avoir vérifié la
                 # capacité de retenue.
                 # Aprés la fonte du couvert, ce dernier peut sublimer. La sublimation est calculée aprés la fonte
-                # car l'énergie requise pour sublimer est plus grande que pour la fonte (source: Gaétan Roberge)
+                # car l'énergie requise pour sublimer est plus grande que pour la fonte (source : Gaétan Roberge).
 
                 # Le couvert a maintenant une capacité de retenue, l'eau qui est retenue peut s'évaporer au
                 # taux hivernal selon la disponibilité.
@@ -1241,27 +1256,27 @@ def mdj_alt(  # noqa: C901
                     couvert_neige = couvert_neige - fonte / dennei
                     fonte = 0  # toute l'eau retenue est évaporée.
 
-                    demande = 0  #
+                demande = 0  #
 
-                    # Condition déplacée le 2016-08-12. Elle était avant la boucle précédente.
-                    # é l'automne, lors de la formation du couvert, il
-                    # peut y a des instabilités numériques en raison de
-                    # l'estimation de la densité d'une quantité de
-                    # neige infinitésimale. Dans ce cas le couvert de
-                    # neige peut devenir négatif (genre -1x10-15) quand on soustrait fonte/dennei.
-                    if couvert_neige < 0:
-                        # Précaution ajoutée pour éviter la neige nulle. N'arrive
-                        # jamais pour les bassins testés. Conditions mises au cas
-                        # oé. (2016-08-11: C'est arrivé avec un scénario climatique dans le lot2)
-                        couvert_neige = 0
-                        neige_au_sol = 0
+                # Condition déplacée le 2016-08-12. Elle était avant la boucle précédente.
+                # é l'automne, lors de la formation du couvert, il
+                # peut qu'il y a des instabilités numériques en raison de
+                # l'estimation de la densité d'une quantité de
+                # neige infinitésimale. Dans ce cas le couvert de
+                # neige peut devenir négatif (genre -1x10-15) quand on soustrait fonte/dennei.
+                if couvert_neige < 0:
+                    # Précaution ajoutée pour éviter la neige nulle. N'arrive
+                    # jamais pour les bassins testés. Conditions mises au cas
+                    # oé. (2016-08-11: C'est arrivé avec un scénario climatique dans le lot2)
+                    couvert_neige = 0
+                    neige_au_sol = 0
 
-                    # -------------------------------
-                    # Ajustement du bilan énergétique
-                    # -------------------------------
-                    energie_neige = energie_neige - (
-                        etr[1] * rho_w * chaleur_latente_evaporation
-                    )
+                # -------------------------------
+                # Ajustement du bilan énergétique
+                # -------------------------------
+                energie_neige = energie_neige - (
+                    etr[1] * rho_w * chaleur_latente_evaporation
+                )
 
             else:
                 # ===============================================
@@ -1352,7 +1367,7 @@ def mdj_alt(  # noqa: C901
                                     * rho_w
                                     * capacite_thermique_massique_eau_solide
                                 )
-                                erf = erf(
+                                erf = calcul_erf(
                                     (eeg[i_g] / denglace) / (2 * np.sqrt(alpha * pdts))
                                 )
 
@@ -1480,7 +1495,7 @@ def mdj_alt(  # noqa: C901
                                 * rho_w
                                 * capacite_thermique_massique_eau_solide
                             )
-                            erf = erf(
+                            erf = calcul_erf(
                                 (eeg[i_g] / denglace) / (2 * np.sqrt(alpha * pdts))
                             )
 
@@ -1704,7 +1719,7 @@ def gel_sol(duree, dt_max, sol_min, sol, gel, neige_au_sol):
 
 def degel_sol(duree, dt_max, sol, gel, neige_au_sol):
     """
-    Degel de l'eau gelée dans le sol par temps doux.
+    Dégel de l'eau gelée dans le sol par temps doux.
 
     Parameters
     ----------
@@ -1789,7 +1804,7 @@ def gel_neige(duree, dt_max, neige_au_sol, fonte, fonte_totale):
 
 def percolation_eau_fonte(neige_au_sol, neige_au_sol_totale, fonte, fonte_totale):
     """
-    Calcul la ercolation de l'eau de fonte dans la neige.
+    Calcul la percolation de l'eau de fonte dans la neige.
 
     Parameters
     ----------
@@ -1837,17 +1852,17 @@ def percolation_eau_fonte(neige_au_sol, neige_au_sol_totale, fonte, fonte_totale
 
 def conductivite_neige(densite):
     """
-    Calcul de la conductivite de la neige.
+    Calcul de la conductivité de la neige.
 
     Parameters
     ----------
     densite : float
-        Densite de la neige.
+        Densité de la neige.
 
     Returns
     -------
     float
-        Conductivite de la neige.
+        Conductivité de la neige.
     """
     d0 = 0.36969
     d1 = 1.58688e-03
@@ -1866,14 +1881,14 @@ def conductivite_neige(densite):
     return conductivite
 
 
-def erf(x):
+def calcul_erf(x):
     """
     Approximation rationnelle.
 
     Parameters
     ----------
     x : float
-        Arguement.
+        Argument.
 
     Returns
     -------
@@ -1891,7 +1906,7 @@ def erf(x):
     return valeur
 
 
-def indice_radiation(jour, latitude, i_orientation_bv, pas_de_temps, pente):
+def calcul_indice_radiation(jour, latitude, i_orientation_bv, pas_de_temps, pente):
     """
     Calcul de l'indice de radiation pour une surface.
 
@@ -1960,10 +1975,10 @@ def indice_radiation(jour, latitude, i_orientation_bv, pas_de_temps, pente):
     e2 = (1 - 0.01673 * np.cos((jour - 4) / deg1)) ** 2
     i_e2 = i0 / e2
 
-    # calcul de la declinaison
+    # calcul de la déclinaison
     decli = 0.410152374218 * np.sin((jour - 80.25) / deg1)
 
-    # demi-duree du jour sur une surface horizontale
+    # demi-durée du jour sur une surface horizontale
     tampon = -np.tan(theta) * np.tan(decli)
     if tampon > 1:
         duree_hor = 0
@@ -1994,9 +2009,9 @@ def indice_radiation(jour, latitude, i_orientation_bv, pas_de_temps, pente):
     if t2_pte > duree_hor:
         t2_pte = duree_hor
 
-    # Si le pas de temps de la simulation (en heure) est inferieur a 24h
-    # alors il ne suffit pas de calculer pour une surface en pente la duree du
-    # jour, le leve et le couche du soleil. Mais il faut inclure seulement les
+    # Si le pas de temps de la simulation (en heure) est inférieur à 24h
+    # alors, il ne suffit pas de calculer pour une surface en pente la durée du
+    # jour, le lève et le couche du soleil. Mais il faut inclure seulement les
     # heures qu'on simule.
 
     t1_pte_sim = t1_pte
@@ -2056,8 +2071,8 @@ def indice_radiation(jour, latitude, i_orientation_bv, pas_de_temps, pente):
     return indice_radiation
 
 
-def albedo_een(albedo, drel, een, neige, pas_de_temps, pluie, tneige):
-    """
+def albedo_een(albedo, drel, een, neige, pas_de_temps, pluie, tneige, *args):
+    r"""
     Calculer l'albedo de l'EEN.
 
     Parameters
@@ -2065,7 +2080,7 @@ def albedo_een(albedo, drel, een, neige, pas_de_temps, pluie, tneige):
     albedo : float
         Albedo.
     drel : float
-        Densite relative de la neige.
+        Densité relative de la neige.
     een : float
         Équivalent en eau de la neige.
     neige : float
@@ -2076,6 +2091,8 @@ def albedo_een(albedo, drel, een, neige, pas_de_temps, pluie, tneige):
         Précipitations liquides.
     tneige : float
         Température de la neige.
+    \*args : list
+        Fonte.
 
     Returns
     -------
@@ -2083,7 +2100,13 @@ def albedo_een(albedo, drel, een, neige, pas_de_temps, pluie, tneige):
         Albedo d'een.
     """
     eq_neige = neige * 1000
-    st_neige = (een - neige / drel) * 1000
+
+    # HSAMI_v1.2.0
+    if len(args) > 0:  # Correction du bogue mdj avec de la neige en été
+        fonte = args[0]
+        st_neige = (een - neige - fonte / drel) * 1000
+    else:  # Ancienne version
+        st_neige = (een - neige / drel) * 1000
 
     if pluie > 0 or tneige >= 0:
         liquide = 1
@@ -2115,7 +2138,7 @@ def albedo_een(albedo, drel, een, neige, pas_de_temps, pluie, tneige):
 
 def calcul_densite_neige(temperature):
     """
-    Calculer la densite de la neige.
+    Calculer la densité de la neige.
 
     Parameters
     ----------
@@ -2154,44 +2177,53 @@ def pluie_neige(tmin, tmax, prec):
     -------
     pluie : float
         Pluie.
-    neige float
+    neige : float
         Neige.
 
     Notes
     -----
     Pluie_neige(tmin,tmax,prec) sépare la précipitation en pluie et neige
-    selon l'algorithme suivant:
-    Lorsque la valeur moyenne de tmin et tmax est inférieure à -2 deg C,
+    selon l'algorithme suivant :
+
+    Puissque la valeur moyenne de tmin et tmax est inférieure à -2 deg C,
     la précipitation est complétement transformée en neige.
 
-    Lorsque la valeur moyenne de la température est dans [-2,2]
+    Puisque la valeur moyenne de la température est dans [-2,2]
     deg C, la précipitation est transformée en neige et pluie dans
     une proportion qui dépend linéairement de cette température i.e
     neige = alpha*prec et pluie = (1-alpha)*prec avec alpha = 0 à -2
     deg C et alpha = 1 à +2 deg C.
 
-    Lorsque la valeur moyenne de tmin et tmax est supérieure à +2 deg
+    Puisque la valeur moyenne de tmin et tmax est supérieure à +2 deg
     C, la précipitation est complétement transformée en pluie.
     """
     if isinstance(prec, float):
         # Températures moyennes
         tmoy = (tmin + tmax) / 2
-
-        # Proportion lpuie / neige
-        alpha = (tmoy + 2) / 4
-        pluie = alpha * prec
-        neige = (1 - alpha) * prec
+        if tmoy < -2:
+            # Toute la précipitation est de la neige
+            pluie = 0
+            neige = prec
+        elif tmoy > 2:
+            # Toute la précipitation est de la pluie
+            pluie = prec
+            neige = 0
+        else:
+            # Proportion de la puie / neige
+            alpha = (tmoy + 2) / 4
+            pluie = alpha * prec
+            neige = (1 - alpha) * prec
 
     elif isinstance(prec, list) | isinstance(prec, np.ndarray):
         # Températures moyennes
-        tmoy = np.array([(tmin + tmax) / 2])
+        tmoy = np.array((tmin + tmax) / 2)
 
         # Indices entre -2 et 2 deg C
         indbetween = np.where((tmoy >= -2) & (tmoy <= 2))[0]
         indpluie = np.where(tmoy > 2)[0]
         indneige = np.where(tmoy < -2)[0]
 
-        # Initialisation des vecteurs de sortie à 0
+        # Initialisation des vecteurs de sortie à 0.
         prec = np.array(prec)
         pluie = np.zeros_like(prec)
         neige = np.zeros_like(prec)
@@ -2202,5 +2234,7 @@ def pluie_neige(tmin, tmax, prec):
         alpha = (tmoy[indbetween] + 2) / 4
         pluie[indbetween] = alpha * prec[indbetween]
         neige[indbetween] = (1 - alpha) * prec[indbetween]
+    else:
+        raise Exception("Le type de la variable prec n'est pas supporté.")
 
     return pluie, neige

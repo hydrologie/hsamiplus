@@ -34,7 +34,7 @@ class TestHsamiHydrogramme(unittest.TestCase):
         forme = self.param[20]
         pas_temps_par_jour = self.nb_pas
         memoire = 13
-        expected_shape = (2, 13)
+        expected_shape = (len(mode), memoire)
 
         result = hsami_hydrogramme(mode, forme, pas_temps_par_jour, memoire)
 

@@ -19,6 +19,7 @@
 #
 import os
 import sys
+from typing import Any
 
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -40,6 +41,8 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx_codeautolink',
     'sphinx_copybutton',
+    'nbsphinx',
+    'IPython.sphinxext.ipython_console_highlighting'
 ]
 
 autosectionlabel_prefix_document = True
@@ -135,7 +138,7 @@ htmlhelp_basename = 'hsamiplusdoc'
 
 # -- Options for LaTeX output ------------------------------------------
 
-latex_elements = {
+latex_elements: dict[str, Any] = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
