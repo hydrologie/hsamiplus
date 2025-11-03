@@ -1,4 +1,3 @@
-import sys
 import unittest
 
 import numpy as np
@@ -49,12 +48,7 @@ class TestHsamiEtp(unittest.TestCase):
             "physio": self.physio,
         }
         expected = (
-            0.00065
-            * 2.54
-            * 9
-            / 5
-            * (params["t_max"] - params["t_min"])
-            * np.exp(0.019 * (params["t_min"] * 9 / 5 + params["t_max"] * 9 / 5 + 64))
+            0.00065 * 2.54 * 9 / 5 * (params["t_max"] - params["t_min"]) * np.exp(0.019 * (params["t_min"] * 9 / 5 + params["t_max"] * 9 / 5 + 64))
         )
         result = hsami_etp(**params)
         self.assertAlmostEqual(result, expected, places=4)
@@ -147,13 +141,7 @@ class TestHsamiEtp(unittest.TestCase):
         }
         t_a = (params["t_min"] + params["t_max"]) / 2
         delta = 0.41 * np.sin((params["jj"] - 80) / 365 * 2 * np.pi)
-        expected = (
-            1
-            / np.pi
-            * np.arccos(-np.tan(params["physio"]["latitude"]) * np.tan(delta))
-            * np.exp((17.3 * t_a) / (238 + t_a))
-            / 10
-        )
+        expected = 1 / np.pi * np.arccos(-np.tan(params["physio"]["latitude"]) * np.tan(delta)) * np.exp((17.3 * t_a) / (238 + t_a)) / 10
         result = hsami_etp(**params)
         self.assertAlmostEqual(result, expected, places=4)
 
@@ -185,9 +173,7 @@ class TestHsamiEtp(unittest.TestCase):
             "physio": self.physio,
         }
         psi = 0.066
-        expected = (
-            (self.m / (self.m + psi)) * (0.61 * self.rg / self.lamda) - 0.12
-        ) / 10
+        expected = ((self.m / (self.m + psi)) * (0.61 * self.rg / self.lamda) - 0.12) / 10
         expected = max(0, expected)
         result = hsami_etp(**params)
         self.assertAlmostEqual(result, expected, places=4)
@@ -272,13 +258,7 @@ class TestHsamiEtp(unittest.TestCase):
 
         # t-a not 0
         t_a = (params["t_min"] + params["t_max"]) / 2
-        expected = (
-            0.0135
-            * (0.16 * self.Re * np.sqrt(params["t_max"] - params["t_min"]))
-            * 0.4082
-            * (t_a + 17.8)
-            / 10
-        )
+        expected = 0.0135 * (0.16 * self.Re * np.sqrt(params["t_max"] - params["t_min"])) * 0.4082 * (t_a + 17.8) / 10
         expected = max(0, expected)
         result = hsami_etp(**params)
         self.assertAlmostEqual(result, expected, places=4)

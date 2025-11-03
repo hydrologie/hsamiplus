@@ -1,7 +1,6 @@
 """The main function for HSAMI+ model simulation."""
 
 from __future__ import annotations
-
 from copy import copy
 
 import numpy as np
@@ -153,12 +152,8 @@ def hsami2(projet):
                              équivalent est égale à 0."
             )
 
-        etat["mh_surf"] = (
-            param[48] * physio["samax"] * 100
-        )  # On considère la surface initiale égale à la surface normale (en hectars)
-        etat["mh_vol"] = param[48] * (
-            param[47] * physio["samax"] * 100 * 10000
-        )  # On considère le volume initial au volume normal (en m^3)
+        etat["mh_surf"] = param[48] * physio["samax"] * 100  # On considère la surface initiale égale à la surface normale (en hectars)
+        etat["mh_vol"] = param[48] * (param[47] * physio["samax"] * 100 * 10000)  # On considère le volume initial au volume normal (en m^3)
         etat["ratio_MH"] = etat["mh_surf"] / (superficie[0] * 100)
 
     if modules["mhumide"] == 0:
@@ -231,9 +226,7 @@ def hsami2(projet):
     etat = hsami_etat_initial(projet, param, modules, physio, superficie, etat)
 
     # Simulation
-    s, etats, deltas = hsami_simulation(
-        projet, param, modules, physio, superficie, etat, nb_pas_total, s, etats, deltas
-    )
+    s, etats, deltas = hsami_simulation(projet, param, modules, physio, superficie, etat, nb_pas_total, s, etats, deltas)
 
     return s, etats, deltas
 
@@ -346,9 +339,7 @@ def hsami_etat_initial(projet, param, modules, physio, superficie, etat):
     # ----------
 
 
-def hsami_simulation(
-    projet, param, modules, physio, superficie, etat, nb_pas_total, s, etats, deltas
-):
+def hsami_simulation(projet, param, modules, physio, superficie, etat, nb_pas_total, s, etats, deltas):
     """
     Simulation avec HASMAI+.
 

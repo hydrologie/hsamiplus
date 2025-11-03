@@ -199,9 +199,7 @@ class TestHsami2Noyau(unittest.TestCase):
         s, etat, delta = hsami2_noyau(self.projet, self.etat)
 
         # Check if the warning was issued
-        mock_warn.assert_called_once_with(
-            "La somme des occupations n" "est pas égale à 1"
-        )
+        mock_warn.assert_called_once_with("La somme des occupations nest pas égale à 1")
 
     @patch("warnings.warn")
     def test_occupation_bande_warning(self, mock_warn):
@@ -211,9 +209,7 @@ class TestHsami2Noyau(unittest.TestCase):
         s, etat, delta = hsami2_noyau(self.projet, self.etat)
 
         # Check if the warning was issued
-        mock_warn.assert_called_once_with(
-            "La somme des occupations n" "est pas égale à 1"
-        )
+        mock_warn.assert_called_once_with("La somme des occupations nest pas égale à 1")
 
     def test_hsami2_noyau_module1(self):
         self.projet["etp_bassin"] = "mcguinness_bordne"

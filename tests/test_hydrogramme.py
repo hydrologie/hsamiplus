@@ -1,4 +1,3 @@
-import sys
 import unittest
 
 import numpy as np
@@ -19,12 +18,8 @@ class TestHsamiHydrogramme(unittest.TestCase):
     def test_hsami_hydrogramme_basic(self):
         expected_shape = (2, self.memoire)
 
-        result_1 = hsami_hydrogramme(
-            self.param[19], self.param[20], self.nb_pas, self.memoire / self.nb_pas
-        )
-        result_2 = hsami_hydrogramme(
-            self.param[21], self.param[22], self.nb_pas, self.memoire / self.nb_pas
-        )
+        result_1 = hsami_hydrogramme(self.param[19], self.param[20], self.nb_pas, self.memoire / self.nb_pas)
+        result_2 = hsami_hydrogramme(self.param[21], self.param[22], self.nb_pas, self.memoire / self.nb_pas)
         hydrogrammes = np.vstack((result_1, result_2))
 
         self.assertEqual(hydrogrammes.shape, expected_shape)

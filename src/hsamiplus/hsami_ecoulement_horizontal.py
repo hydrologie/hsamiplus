@@ -47,14 +47,10 @@ def hsami_ecoulement_horizontal(
     vidange_reserve_inter = 1 - (1 - vidange_reserve_inter) / nb_pas
 
     # Distribution du ruissellement de surface en fonction de l'hydrogramme de surface
-    eau_hydrogrammes[:, 0] = (
-        eau_hydrogrammes[:, 0] + hydrogrammes[:, 0] * apport_vertical[2]
-    )
+    eau_hydrogrammes[:, 0] = eau_hydrogrammes[:, 0] + hydrogrammes[:, 0] * apport_vertical[2]
 
     if modules["mhumide"] == 1:
-        eau_hydrogrammes[:, 2] = (
-            eau_hydrogrammes[:, 2] + hydrogrammes[:, 0] * apport_vertical[5]
-        )
+        eau_hydrogrammes[:, 2] = eau_hydrogrammes[:, 2] + hydrogrammes[:, 0] * apport_vertical[5]
 
     # Calcul de l'apport latéral
     apport = [
@@ -70,9 +66,7 @@ def hsami_ecoulement_horizontal(
     # Alimentation de la réserve intermédiaire par le ruissellement intermédiaire
     eau_hydrogrammes[0, 1] = apport_vertical[1]
     eau_inter = np.sum(eau_hydrogrammes[:, 1] * hydrogrammes[:, 1])
-    reserve_inter = reserve_inter * vidange_reserve_inter + eau_inter * (
-        1 - vidange_reserve_inter
-    )
+    reserve_inter = reserve_inter * vidange_reserve_inter + eau_inter * (1 - vidange_reserve_inter)
     # Ex.: eau_inter = 0.0060
 
     # ---------------------------------------

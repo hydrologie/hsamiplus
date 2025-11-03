@@ -1,4 +1,3 @@
-import sys
 import unittest
 
 import numpy as np
@@ -22,18 +21,14 @@ class TestHsamiRuissellementSurface(unittest.TestCase):
 
     def test_hsami_ruissellement_surface_hsami(self):
         self.modules["infiltration"] = "hsami"
-        ruissellement_surface, infiltration = hsami_ruissellement_surface(
-            self.nb_pas, self.param, self.etat, self.eau_surface, self.modules
-        )
+        ruissellement_surface, infiltration = hsami_ruissellement_surface(self.nb_pas, self.param, self.etat, self.eau_surface, self.modules)
 
         self.assertIsInstance(ruissellement_surface, float)
         self.assertIsInstance(infiltration, float)
 
     def test_hsami_ruissellement_surface_green_ampt(self):
         self.modules["infiltration"] = "green_ampt"
-        ruissellement_surface, infiltration = hsami_ruissellement_surface(
-            self.nb_pas, self.param, self.etat, self.eau_surface, self.modules
-        )
+        ruissellement_surface, infiltration = hsami_ruissellement_surface(self.nb_pas, self.param, self.etat, self.eau_surface, self.modules)
 
         self.assertIsInstance(ruissellement_surface, float)
         self.assertIsInstance(infiltration, float)
@@ -41,36 +36,28 @@ class TestHsamiRuissellementSurface(unittest.TestCase):
     def test_hsami_ruissellement_surface_scs_cn(self):
         self.modules["infiltration"] = "scs_cn"
 
-        ruissellement_surface, infiltration = hsami_ruissellement_surface(
-            self.nb_pas, self.param, self.etat, self.eau_surface, self.modules
-        )
+        ruissellement_surface, infiltration = hsami_ruissellement_surface(self.nb_pas, self.param, self.etat, self.eau_surface, self.modules)
 
         self.assertIsInstance(ruissellement_surface, float)
         self.assertIsInstance(infiltration, float)
 
     def test_hsami_ruissellement_surface_hsami_no_gel(self):
         self.etat["gel"] = 0
-        ruissellement_surface, infiltration = hsami_ruissellement_surface(
-            self.nb_pas, self.param, self.etat, self.eau_surface, self.modules
-        )
+        ruissellement_surface, infiltration = hsami_ruissellement_surface(self.nb_pas, self.param, self.etat, self.eau_surface, self.modules)
 
         self.assertIsInstance(ruissellement_surface, float)
         self.assertIsInstance(infiltration, float)
 
     def test_hsami_ruissellement_surface_hsami_with_gel(self):
         self.etat["gel"] = 1
-        ruissellement_surface, infiltration = hsami_ruissellement_surface(
-            self.nb_pas, self.param, self.etat, self.eau_surface, self.modules
-        )
+        ruissellement_surface, infiltration = hsami_ruissellement_surface(self.nb_pas, self.param, self.etat, self.eau_surface, self.modules)
 
         self.assertIsInstance(ruissellement_surface, float)
         self.assertIsInstance(infiltration, float)
 
     def test_hsami_ruissellement_surface_hsami_3couches(self):
         self.modules["sol"] = "3couches"
-        ruissellement_surface, infiltration = hsami_ruissellement_surface(
-            self.nb_pas, self.param, self.etat, self.eau_surface, self.modules
-        )
+        ruissellement_surface, infiltration = hsami_ruissellement_surface(self.nb_pas, self.param, self.etat, self.eau_surface, self.modules)
 
         self.assertIsInstance(ruissellement_surface, float)
         self.assertIsInstance(infiltration, float)

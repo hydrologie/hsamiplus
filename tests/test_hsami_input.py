@@ -1,7 +1,6 @@
 import json
 import unittest
-from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import mock_open, patch
 
 import pandas as pd
 
@@ -15,7 +14,6 @@ from hsamiplus.hsami_input import (
 
 
 class TestHsamiInput(unittest.TestCase):
-
     @patch(
         "builtins.open",
         new_callable=mock_open,

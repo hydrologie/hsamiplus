@@ -158,12 +158,8 @@ class TestHsami2(unittest.TestCase):
                                 équivalent est égale à 0."
                 )
 
-            etat["mh_surf"] = (
-                self.projet["param"][48] * self.projet["physio"]["samax"] * 100
-            )
-            etat["mh_vol"] = self.projet["param"][48] * (
-                self.projet["param"][47] * self.projet["physio"]["samax"] * 100 * 10000
-            )
+            etat["mh_surf"] = self.projet["param"][48] * self.projet["physio"]["samax"] * 100
+            etat["mh_vol"] = self.projet["param"][48] * (self.projet["param"][47] * self.projet["physio"]["samax"] * 100 * 10000)
             etat["ratio_MH"] = etat["mh_surf"] / (self.projet["superficie"][0] * 100)
 
         if self.projet["modules"]["mhumide"] == 0:
@@ -259,12 +255,8 @@ class TestHsami2(unittest.TestCase):
                                 équivalent est égale à 0."
                 )
 
-            etat["mh_surf"] = (
-                self.projet["param"][48] * self.projet["physio"]["samax"] * 100
-            )
-            etat["mh_vol"] = self.projet["param"][48] * (
-                self.projet["param"][47] * self.projet["physio"]["samax"] * 100 * 10000
-            )
+            etat["mh_surf"] = self.projet["param"][48] * self.projet["physio"]["samax"] * 100
+            etat["mh_vol"] = self.projet["param"][48] * (self.projet["param"][47] * self.projet["physio"]["samax"] * 100 * 10000)
             etat["ratio_MH"] = etat["mh_surf"] / (self.projet["superficie"][0] * 100)
 
         if self.projet["modules"]["mhumide"] == 0:
@@ -361,43 +353,43 @@ class TestHsami2(unittest.TestCase):
     def test_hsami2_modules(self):
         self.assertTrue(
             self.projet["modules"]["etp_bassin"] in self.etp_modules,
-            "Le module n" "est disponible !",
+            "Le module nest disponible !",
         )
         self.assertTrue(
             self.projet["modules"]["etp_reservoir"] in self.etp_modules,
-            "Le module n" "est disponible !",
+            "Le module nest disponible !",
         )
         self.assertTrue(
             self.projet["modules"]["een"] in self.een_modules,
-            "Le module n" "est disponible !",
+            "Le module nest disponible !",
         )
         self.assertTrue(
             self.projet["modules"]["infiltration"] in self.infiltration_modules,
-            "Le module n" "est disponible !",
+            "Le module nest disponible !",
         )
         self.assertTrue(
             self.projet["modules"]["qbase"] in self.qbase_modules,
-            "Le module n" "est disponible !",
+            "Le module nest disponible !",
         )
         self.assertTrue(
             self.projet["modules"]["sol"] in self.sol_modules,
-            "Le module n" "est disponible !",
+            "Le module nest disponible !",
         )
         self.assertTrue(
             self.projet["modules"]["radiation"] in self.radiation_modules,
-            "Le module n" "est disponible !",
+            "Le module nest disponible !",
         )
         self.assertTrue(
             self.projet["modules"]["reservoir"] in self.reservoir_modules,
-            "Le module n" "est disponible !",
+            "Le module nest disponible !",
         )
         self.assertTrue(
             self.projet["modules"]["mhumide"] in self.mhumide_modules,
-            "Le module n" "est disponible !",
+            "Le module nest disponible !",
         )
         self.assertTrue(
             self.projet["modules"]["glace_reservoir"] in self.glace_reservoir_modules,
-            "Le module n" "est disponible !",
+            "Le module nest disponible !",
         )
 
     def test_hsami2_output_structure(self):

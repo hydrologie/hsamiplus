@@ -39,12 +39,8 @@ def hsami_mhumide(apport, param, etat, demande, etr, physio, superficie):
     # Identification des paramétres
     # -----------------------------
     hmax = param[47]  # Coefficient pour calcul du volume max du MHE (hmax)
-    p_norm = param[
-        48
-    ]  # Coefficient pour détermination de la surface normale (30# dans HYDROTEL)(p_norm)
-    ksat = (
-        10 ** param[49]
-    )  # Puissance de la conductivité hydraulique é saturation é la base du MHE (cm/j)
+    p_norm = param[48]  # Coefficient pour détermination de la surface normale (30# dans HYDROTEL)(p_norm)
+    ksat = 10 ** param[49]  # Puissance de la conductivité hydraulique é saturation é la base du MHE (cm/j)
 
     # -----------------------------------
     # Identification des variables d'état
@@ -52,15 +48,9 @@ def hsami_mhumide(apport, param, etat, demande, etr, physio, superficie):
     v_init = etat["mh_vol"]
     sa = etat["mh_surf"]  # Superficie du MHE au début du pas de temps (hectares)
 
-    sup_bv = (
-        superficie[0] * 100
-    )  # Surface totale du BV (en hectares)- NE VARIE PAS PDT LA SIMULATION
-    sa_max = (
-        physio["samax"]
-    ) * 100  # Surface max du MHE (en hectares)- NE VARIE PAS PDT LA SIMULATION
-    sa_norm = (
-        p_norm * sa_max
-    )  # Surface normale du MHE (30# de Smax dans HYDROTEL) (en hectares) - NE VARIE PAS PDT LA SIMULATION
+    sup_bv = superficie[0] * 100  # Surface totale du BV (en hectares)- NE VARIE PAS PDT LA SIMULATION
+    sa_max = (physio["samax"]) * 100  # Surface max du MHE (en hectares)- NE VARIE PAS PDT LA SIMULATION
+    sa_norm = p_norm * sa_max  # Surface normale du MHE (30# de Smax dans HYDROTEL) (en hectares) - NE VARIE PAS PDT LA SIMULATION
 
     # Calcul de v_max et v_norm
     v_max = hmax * (sa_max * 10000)  # Volume d'eau max dans le MHE (m^3)
@@ -68,9 +58,7 @@ def hsami_mhumide(apport, param, etat, demande, etr, physio, superficie):
     vmin = 0.5 * v_norm  # Volume d'eau minimal dans le MHE (m^3)
 
     # Calcul des coefficients alpha et beta
-    alpha = (np.log10(sa_max) - np.log10(sa_norm)) / (
-        np.log10(v_max) - np.log10(v_norm)
-    )  # Ex.: alpha = 1.000
+    alpha = (np.log10(sa_max) - np.log10(sa_norm)) / (np.log10(v_max) - np.log10(v_norm))  # Ex.: alpha = 1.000
     beta = sa_max / (v_max**alpha)  # Ex.: 1.0000e-04
 
     # ===================
@@ -155,13 +143,9 @@ def hsami_mhumide(apport, param, etat, demande, etr, physio, superficie):
     # Calcul des Returnss pondérées au bassin versant et au MH
     # -------------------------------------------------------
     # Returnss du MH
-    qbase_mh = np.round(
-        vseep * etat["ratio_MH"] / (sa * 100), 10
-    )  # Ex.: qbase_mh = 9.3306e-05
+    qbase_mh = np.round(vseep * etat["ratio_MH"] / (sa * 100), 10)  # Ex.: qbase_mh = 9.3306e-05
     qsurf_mh = vsurf * etat["ratio_MH"] / (sa * 100)  # Ex.: qsurf_mh = 0.0013
-    etr_mh = np.round(
-        vevap * etat["ratio_MH"] / (sa * 100), 10
-    )  # Ex.: etr_mh = 8.3422e-04
+    etr_mh = np.round(vevap * etat["ratio_MH"] / (sa * 100), 10)  # Ex.: etr_mh = 8.3422e-04
 
     # Returnss du BV pondérées
 
@@ -180,14 +164,10 @@ def hsami_mhumide(apport, param, etat, demande, etr, physio, superficie):
         qsurf_mh,
     ]  # Ex.: apport = [0.0507, 0, 0, -0.0894, 0, 0.0013]
     etr = np.append(etr, etr_mh)
-    etat["ratio_qbase"] = qbase_mh / (
-        qbase_bv + qbase_mh
-    )  # Ex.: etat.ratio_qbase = 0.0018
+    etat["ratio_qbase"] = qbase_mh / (qbase_bv + qbase_mh)  # Ex.: etat.ratio_qbase = 0.0018
 
     # Recalcul des ratios
     etat["ratio_MH"] = etat["mh_surf"] / sup_bv  # Ex.: 0.0093
-    etat["mhumide"] = (
-        etat["mh_vol"] * etat["ratio_MH"] / (etat["mh_surf"] * 100)
-    )  # Ex.: 0.9313
+    etat["mhumide"] = etat["mh_vol"] * etat["ratio_MH"] / (etat["mh_surf"] * 100)  # Ex.: 0.9313
 
     return apport, etat, etr
