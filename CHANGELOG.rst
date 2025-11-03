@@ -3,7 +3,6 @@ Changelog
 =========
 
 ..
-
     `Unreleased <https://github.com/hydrologie/hsamiplus>`_ (latest)
     ----------------------------------------------------------------
 
