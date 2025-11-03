@@ -355,7 +355,7 @@ def ecoulement_3couches(
     pas_1h = int(24 / nb_pas)
     recharge = 0
 
-    for i_p in range(0, pas_1h):
+    for _i_p in range(0, pas_1h):
         # Calcul de K
         k = [
             ks[0] * (sol[0] / sol_max[0]) ** c[0],

@@ -171,7 +171,7 @@ class TestHsamiInterception(unittest.TestCase):
         self.assertEqual(apport_vertical.shape, (5,))
 
         # modules["sol"] = "3couches"
-        self.modules["sol"] == "3couches"
+        self.modules["sol"] = "3couches"
         eau_surface, demande_eau, etat, etr, apport_vertical = hsami_interception(
             self.nb_pas,
             self.jj,
@@ -191,7 +191,7 @@ class TestHsamiInterception(unittest.TestCase):
         self.assertEqual(apport_vertical.shape, (5,))
 
         # Données de EEN
-        self.modules["sol"] == "hsami"
+        self.modules["sol"] = "hsami"
         self.meteo = {
             "bassin": [-3.3, 1.5, 2.3, 0.0, 0.5, 19.3],
             "reservoir": [-3.3, 1.5, 2.0, 0.0, 0.5, 19.3],

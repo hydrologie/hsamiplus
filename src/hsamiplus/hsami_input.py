@@ -14,13 +14,13 @@ def make_project(data_dir, basin_file, param_file, projet_file):
 
     Parameters
     ----------
-    data_dir : str
+    data_dir : str or Path
         Répertoire contenant les fichiers de données.
-    basin_file : str
+    basin_file : str or Path
         Chemin d'accès au fichier de données du bassin.
-    param_file : str
+    param_file : str or Path
         Chemin d'accès au fichier de paramètres.
-    projet_file : str
+    projet_file : str or Path
         Chemin d'accès au fichier de projet de sortie.
 
     Notes
@@ -171,11 +171,11 @@ def meteohsami(data_dir, fichier_meteo_bv, fichier_meteo_reservoir):
 
     Parameters
     ----------
-    data_dir : str
+    data_dir : str or Path
         Chemin d'accès au fichier météo à lire.
-    fichier_meteo_bv : str
+    fichier_meteo_bv : str or Path
         Fichier météo du bassin versant.
-    fichier_meteo_reservoir : str
+    fichier_meteo_reservoir : str or Path
         Fichier météo du réservoir.
 
     Returns
@@ -218,7 +218,7 @@ def paramshsami(param_file):
 
     Parameters
     ----------
-    param_file : str
+    param_file : str or Path
         Chemin d'accès au fichier de paramètres à lire.
 
     Returns
@@ -248,7 +248,7 @@ def writejson(filename, dict_var):
 
     Parameters
     ----------
-    filename : str
+    filename : str or Path
         The name of the file to write the JSON data to.
     dict_var : dict
         The dictionary to convert to JSON format.

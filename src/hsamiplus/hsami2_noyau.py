@@ -29,7 +29,7 @@ def hsami2_noyau(projet, etat):
 
     Returns
     -------
-    s : dict
+    s : dict0
         Sorties de simulation.
     etats: dict
         États du bassin versants et du réservoir.
@@ -310,12 +310,12 @@ def hsami2_noyau(projet, etat):
         if modules["een"] == "mdj":
             # Verifier si la somme des occupations = 1.
             if np.sum(physio["occupation"][:]) != 1:
-                warnings.warn("La somme des occupations nest pas égale à 1")
+                warnings.warn("La somme des occupations nest pas égale à 1", stacklevel=2)
 
         if modules["een"] == "alt":
             # Verifier si la somme des occupations = 1.
             if np.sum(physio["occupation_bande"][:]) != 1:
-                warnings.warn("La somme des occupations nest pas égale à 1")
+                warnings.warn("La somme des occupations nest pas égale à 1", stacklevel=2)
 
     # -------------------------------------------
     # Sauvegarde des états initiaux pour le bilan
