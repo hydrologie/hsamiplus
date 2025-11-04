@@ -1,0 +1,21 @@
+# This CITATION.cff file was generated with cffinit and templated with cookiecutter.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: "1.2.0"
+title: "hsamiplus"
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: "software"
+authors:
+  - given-names: 'Didier'
+    family-names: 'Haguma'
+    email: 'dhaguma@hotmail.com'
+contact:
+  - given-names: 'Didier'
+    family-names: 'Haguma'
+    email: 'dhaguma@hotmail.com'
+repository-code: "https://github.com/hydrologie/hsamiplus"
+abstract: "Python Boilerplate contains all the boilerplate you need to create a Python package."
+license: "BSD-3-Clause"
+version: "0.1.0"

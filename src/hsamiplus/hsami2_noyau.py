@@ -1,7 +1,6 @@
 """The core of HSAMI+ that simulates hydrological processes for ONE TIME STEP."""
 
 from __future__ import annotations
-
 import warnings
 from datetime import datetime
 
@@ -30,7 +29,7 @@ def hsami2_noyau(projet, etat):
 
     Returns
     -------
-    s : dict
+    s : dict0
         Sorties de simulation.
     etats: dict
         États du bassin versants et du réservoir.
@@ -311,12 +310,12 @@ def hsami2_noyau(projet, etat):
         if modules["een"] == "mdj":
             # Verifier si la somme des occupations = 1.
             if np.sum(physio["occupation"][:]) != 1:
-                warnings.warn("La somme des occupations n" "est pas égale à 1")
+                warnings.warn("La somme des occupations nest pas égale à 1", stacklevel=2)
 
         if modules["een"] == "alt":
             # Verifier si la somme des occupations = 1.
             if np.sum(physio["occupation_bande"][:]) != 1:
-                warnings.warn("La somme des occupations n" "est pas égale à 1")
+                warnings.warn("La somme des occupations nest pas égale à 1", stacklevel=2)
 
     # -------------------------------------------
     # Sauvegarde des états initiaux pour le bilan
@@ -327,15 +326,13 @@ def hsami2_noyau(projet, etat):
 
     etats_ini = (
         etat["ratio_bassin"] * etat["neige_au_sol"]
-        + etat["ratio_fixe"]
-        * (etat["gel"] + etat["nappe"] + np.nansum(etat["sol"]) + etat["mhumide"])
+        + etat["ratio_fixe"] * (etat["gel"] + etat["nappe"] + np.nansum(etat["sol"]) + etat["mhumide"])
         + np.nansum(etat["eeg"]) / superficie[0]
     )
 
     reserv_ini = etat["ratio_fixe"] * etat["reserve"]
     eaux_hu_ini = etat["ratio_fixe"] * (
-        np.nansum(etat["eau_hydrogrammes"][:, 0] + etat["eau_hydrogrammes"][:, 2])
-        + np.nansum(etat["eau_hydrogrammes"][0:9, 1])
+        np.nansum(etat["eau_hydrogrammes"][:, 0] + etat["eau_hydrogrammes"][:, 2]) + np.nansum(etat["eau_hydrogrammes"][0:9, 1])
     )
 
     (
@@ -348,9 +345,7 @@ def hsami2_noyau(projet, etat):
         glace_vers_res,
         bassin_vers_res,
         bilan,
-    ) = etp_glace_interception(
-        projet, param, modules, physio, superficie, meteo, nb_pas, etat, bilan
-    )
+    ) = etp_glace_interception(projet, param, modules, physio, superficie, meteo, nb_pas, etat, bilan)
 
     etat, q, etp_tot, etr_tot, etr, bilan = ruissellement_ecoulement(
         projet,
@@ -389,9 +384,7 @@ def hsami2_noyau(projet, etat):
     return s, etat, delta
 
 
-def etp_glace_interception(
-    projet, param, modules, physio, superficie, meteo, nb_pas, etat, bilan
-):
+def etp_glace_interception(projet, param, modules, physio, superficie, meteo, nb_pas, etat, bilan):
     """
     HSAMI_ETP, HSAMI_GLACE, HSAMI_INTERCEPTION.
 
@@ -487,27 +480,16 @@ def etp_glace_interception(
     if modules["glace_reservoir"] == "stefan" or modules["glace_reservoir"] == "mylake":
         if "niveau" in physio:
             if physio["niveau"] is not None:
-                glace_vers_reservoir, bassin_vers_reservoir, etat = hsami_glace(
-                    modules, superficie, etat, meteo, physio, param
-                )
+                glace_vers_reservoir, bassin_vers_reservoir, etat = hsami_glace(modules, superficie, etat, meteo, physio, param)
             else:
-                glace_vers_reservoir, bassin_vers_reservoir, etat = hsami_glace(
-                    modules, superficie, etat
-                )
+                glace_vers_reservoir, bassin_vers_reservoir, etat = hsami_glace(modules, superficie, etat)
         else:
-            glace_vers_reservoir, bassin_vers_reservoir, etat = hsami_glace(
-                modules, superficie, etat
-            )
+            glace_vers_reservoir, bassin_vers_reservoir, etat = hsami_glace(modules, superficie, etat)
 
     elif modules["glace_reservoir"] == 0:
-        glace_vers_reservoir, bassin_vers_reservoir, etat = hsami_glace(
-            modules, superficie, etat
-        )
+        glace_vers_reservoir, bassin_vers_reservoir, etat = hsami_glace(modules, superficie, etat)
     else:
-        raise ValueError(
-            "L"
-            "option spécifiée pour la modélisation de la glace de réservoir est invalide"
-        )
+        raise ValueError("Loption spécifiée pour la modélisation de la glace de réservoir est invalide")
 
     # sorties
     bilan["glace"]["sorties"] = glace_vers_reservoir
@@ -519,30 +501,14 @@ def etp_glace_interception(
     # entrées
     bilan["interception"] = {}
     bilan["interception"]["etat"] = [0, 0]
-    bilan["interception"]["entrees"] = np.sum(meteo["bassin"][2:4]) + np.sum(
-        meteo["reservoir"][2:4]
-    )
-    bilan["interception"]["etat"][0] = (
-        etat["neige_au_sol"]
-        + etat["gel"]
-        + np.nansum(etat["sol"])
-        + np.nansum(etat["eeg"])
-    )
+    bilan["interception"]["entrees"] = np.sum(meteo["bassin"][2:4]) + np.sum(meteo["reservoir"][2:4])
+    bilan["interception"]["etat"][0] = etat["neige_au_sol"] + etat["gel"] + np.nansum(etat["sol"]) + np.nansum(etat["eeg"])
 
-    eau_surface, demande_eau, etat, etr, apport_vertical = hsami_interception(
-        nb_pas, jj, param, meteo, etps, etat, modules, physio
-    )
+    eau_surface, demande_eau, etat, etr, apport_vertical = hsami_interception(nb_pas, jj, param, meteo, etps, etat, modules, physio)
 
     # sorties
-    bilan["interception"]["sorties"] = (
-        eau_surface + np.nansum(etr) + np.nansum(apport_vertical[[3, 4]])
-    )
-    bilan["interception"]["etat"][1] = (
-        etat["neige_au_sol"]
-        + etat["gel"]
-        + np.nansum(etat["sol"])
-        + np.nansum(etat["eeg"])
-    )
+    bilan["interception"]["sorties"] = eau_surface + np.nansum(etr) + np.nansum(apport_vertical[[3, 4]])
+    bilan["interception"]["etat"][1] = etat["neige_au_sol"] + etat["gel"] + np.nansum(etat["sol"]) + np.nansum(etat["eeg"])
 
     return (
         etat,
@@ -632,9 +598,7 @@ def ruissellement_ecoulement(
     bilan["ruissellement"]["entrees"] = eau_surface
     bilan["ruissellement"]["etat"][0] = 0
 
-    ruissellement_surface, infiltration = hsami_ruissellement_surface(
-        nb_pas, param, etat, eau_surface, modules
-    )
+    ruissellement_surface, infiltration = hsami_ruissellement_surface(nb_pas, param, etat, eau_surface, modules)
 
     # sorties
     bilan["ruissellement"]["sorties"] = ruissellement_surface + infiltration
@@ -653,9 +617,7 @@ def ruissellement_ecoulement(
     bilan["vertical"] = {}
     bilan["vertical"]["etat"] = [0, 0]
     bilan["vertical"]["entrees"] = infiltration + ruissellement
-    bilan["vertical"]["etat"][0] = (
-        etat["neige_au_sol"] + etat["gel"] + etat["nappe"] + np.nansum(etat["sol"])
-    )
+    bilan["vertical"]["etat"][0] = etat["neige_au_sol"] + etat["gel"] + etat["nappe"] + np.nansum(etat["sol"])
 
     apport_vertical, etat, etr = hsami_ecoulement_vertical(
         nb_pas,
@@ -671,9 +633,7 @@ def ruissellement_ecoulement(
 
     # sorties
     bilan["vertical"]["sorties"] = np.nansum(apport_vertical[0:3]) + etr[2] + etr[3]
-    bilan["vertical"]["etat"][1] = (
-        etat["neige_au_sol"] + etat["gel"] + etat["nappe"] + np.nansum(etat["sol"])
-    )
+    bilan["vertical"]["etat"][1] = etat["neige_au_sol"] + etat["gel"] + etat["nappe"] + np.nansum(etat["sol"])
 
     if modules["mhumide"] == 1:
         # entrées
@@ -682,9 +642,7 @@ def ruissellement_ecoulement(
         bilan["mhumide"]["entrees"] = np.nansum(apport_vertical) + np.nansum(etr)
         bilan["mhumide"]["etat"][0] = etat["mhumide"]
 
-        apport_vertical, etat, etr = hsami_mhumide(
-            apport_vertical, param, etat, demande_eau, etr, physio, superficie
-        )
+        apport_vertical, etat, etr = hsami_mhumide(apport_vertical, param, etat, demande_eau, etr, physio, superficie)
 
         # sorties
         bilan["mhumide"]["sorties"] = np.nansum(apport_vertical) + np.nansum(etr)
@@ -706,37 +664,23 @@ def ruissellement_ecoulement(
 
     if "hu_surface" in projet:
         if len(projet["hu_surface"]) != projet["memoire"]:
-            print(
-                "L"
-                "hydrogramme unitaire de surface imposé doit avoir la même durée que la variable mémoire"
-            )
+            print("Lhydrogramme unitaire de surface imposé doit avoir la même durée que la variable mémoire")
 
         hydrogrammes = np.zeros((len(projet["hu_surface"]), 2))
-        hydrogrammes[:, 0] = projet[
-            "hu_surface"
-        ]  # Note : Les paramétres 19 et 20 ne seront pas utilisés
+        hydrogrammes[:, 0] = projet["hu_surface"]  # Note : Les paramétres 19 et 20 ne seront pas utilisés
     else:
-        hydrogrammes = hsami_hydrogramme(
-            param[19], param[20], nb_pas, projet["memoire"] / nb_pas
-        )  # hu surface
+        hydrogrammes = hsami_hydrogramme(param[19], param[20], nb_pas, projet["memoire"] / nb_pas)  # hu surface
 
     if "hu_inter" in projet:
         if len(projet["hu_inter"]) != projet["memoire"]:
-            print(
-                "L"
-                "hydrogramme unitaire intermédiaire imposé doit avoir la même durée que la variable mémoire"
-            )
+            print("Lhydrogramme unitaire intermédiaire imposé doit avoir la même durée que la variable mémoire")
 
-        hydrogrammes[:, 1] = projet[
-            "hu_inter"
-        ]  # Note : Les paramétres 21 et 22 ne seront pas utilisés
+        hydrogrammes[:, 1] = projet["hu_inter"]  # Note : Les paramétres 21 et 22 ne seront pas utilisés
     else:
         hydrogrammes = np.vstack(
             (
                 hydrogrammes,
-                hsami_hydrogramme(
-                    param[21], param[22], nb_pas, projet["memoire"] / nb_pas
-                ),
+                hsami_hydrogramme(param[21], param[22], nb_pas, projet["memoire"] / nb_pas),
             )
         ).T  # hu inter
 
@@ -745,21 +689,17 @@ def ruissellement_ecoulement(
     bilan["horizontal"]["etat"] = [0, 0]
     bilan["horizontal"]["entrees"] = np.sum(apport_vertical)
     bilan["horizontal"]["etat"][0] = (
-        np.sum(etat["eau_hydrogrammes"][:, 0] + etat["eau_hydrogrammes"][:, 2])
-        + np.sum(etat["eau_hydrogrammes"][0:9, 1])
-        + etat["reserve"]
+        np.sum(etat["eau_hydrogrammes"][:, 0] + etat["eau_hydrogrammes"][:, 2]) + np.sum(etat["eau_hydrogrammes"][0:9, 1]) + etat["reserve"]
     )
 
-    apport_horizontal, etat["reserve"], etat["eau_hydrogrammes"] = (
-        hsami_ecoulement_horizontal(
-            nb_pas,
-            param[18],
-            etat["reserve"],
-            etat["eau_hydrogrammes"],
-            hydrogrammes,
-            apport_vertical,
-            modules,
-        )
+    apport_horizontal, etat["reserve"], etat["eau_hydrogrammes"] = hsami_ecoulement_horizontal(
+        nb_pas,
+        param[18],
+        etat["reserve"],
+        etat["eau_hydrogrammes"],
+        hydrogrammes,
+        apport_vertical,
+        modules,
     )
 
     # sorties
@@ -771,9 +711,7 @@ def ruissellement_ecoulement(
     # ------------------
     # Facteurs de conversion pour les debits
     facteur_fixe = superficie[0] * etat["ratio_fixe"] / 8.64  # Pour les cm/j en m3/s
-    facteur_reservoir = (
-        superficie[0] * etat["ratio_reservoir"] / 8.64
-    )  # Pour les cm/j en m3/s
+    facteur_reservoir = superficie[0] * etat["ratio_reservoir"] / 8.64  # Pour les cm/j en m3/s
 
     # debits provenant du bassin (m3/s)
     # ---------------------------------
@@ -785,10 +723,7 @@ def ruissellement_ecoulement(
     # ----------------------------------
     # On retire l'ETR directe au réservoir dans la fonction
     # hsami_interception
-    q[3] = (
-        apport_horizontal[3] * facteur_reservoir
-        + bassin_vers_reservoir * superficie[0] / 8.64
-    )
+    q[3] = apport_horizontal[3] * facteur_reservoir + bassin_vers_reservoir * superficie[0] / 8.64
 
     # debit provenant de la glace (m3/s)
     # ---------------------------------
@@ -802,14 +737,9 @@ def ruissellement_ecoulement(
     # réservoir.
 
     if modules["mhumide"] == 1:
-        etr_tot = (
-            np.sum(etr[[0, 1, 2, 3, 5]]) * etat["ratio_bassin"]
-            + etr[4] * etat["ratio_reservoir"]
-        )
+        etr_tot = np.sum(etr[[0, 1, 2, 3, 5]]) * etat["ratio_bassin"] + etr[4] * etat["ratio_reservoir"]
     if modules["mhumide"] == 0:
-        etr_tot = (
-            np.sum(etr[0:4]) * etat["ratio_bassin"] + etr[4] * etat["ratio_reservoir"]
-        )
+        etr_tot = np.sum(etr[0:4]) * etat["ratio_bassin"] + etr[4] * etat["ratio_reservoir"]
 
     etp_tot = etps[0] * etat["ratio_bassin"] + etps[1] * etat["ratio_reservoir"]
 
@@ -913,14 +843,11 @@ def bilan_sorties(
     # ---------------------
     # CALCUL DU BILAN TOTAL
     # ---------------------
-    entrees_bilan = etat["ratio_bassin"] * np.sum(meteo["bassin"][2:4]) + etat[
-        "ratio_reservoir"
-    ] * np.sum(meteo["reservoir"][2:4])
+    entrees_bilan = etat["ratio_bassin"] * np.sum(meteo["bassin"][2:4]) + etat["ratio_reservoir"] * np.sum(meteo["reservoir"][2:4])
 
     etats_bilan = (
         etat["ratio_bassin"] * etat["neige_au_sol"]
-        + etat["ratio_fixe"]
-        * (np.nansum(etat["sol"]) + etat["gel"] + etat["nappe"] + etat["mhumide"])
+        + etat["ratio_fixe"] * (np.nansum(etat["sol"]) + etat["gel"] + etat["nappe"] + etat["mhumide"])
         + np.nansum(etat["eeg"]) / superficie[0]
     )
 
@@ -929,69 +856,36 @@ def bilan_sorties(
     debit = s["Qtotal"] * 8.64 / superficie[0]
 
     delta = {}
-    delta["total"] = (
-        entrees_bilan
-        + reserv_ini
-        + etats_ini
-        + eaux_hu_ini
-        - etats_bilan
-        - eaux_hu
-        - debit
-        - s["ETRtotal"]
-    )
+    delta["total"] = entrees_bilan + reserv_ini + etats_ini + eaux_hu_ini - etats_bilan - eaux_hu - debit - s["ETRtotal"]
 
     # ---------------------------------
     # CALCUL DU BILAN PAR SOUS-FONCTION
     # ---------------------------------
     # Glace
-    delta["glace"] = (
-        bilan["glace"]["entrees"]
-        - bilan["glace"]["sorties"]
-        + bilan["glace"]["etat"][0]
-        - bilan["glace"]["etat"][1]
-    )
+    delta["glace"] = bilan["glace"]["entrees"] - bilan["glace"]["sorties"] + bilan["glace"]["etat"][0] - bilan["glace"]["etat"][1]
 
     # Interception
     delta["interception"] = (
-        bilan["interception"]["entrees"]
-        - bilan["interception"]["sorties"]
-        + bilan["interception"]["etat"][0]
-        - bilan["interception"]["etat"][1]
+        bilan["interception"]["entrees"] - bilan["interception"]["sorties"] + bilan["interception"]["etat"][0] - bilan["interception"]["etat"][1]
     )
 
     # Ruissellement
     delta["ruissellement"] = (
-        bilan["ruissellement"]["entrees"]
-        - bilan["ruissellement"]["sorties"]
-        + bilan["ruissellement"]["etat"][0]
-        - bilan["ruissellement"]["etat"][1]
+        bilan["ruissellement"]["entrees"] - bilan["ruissellement"]["sorties"] + bilan["ruissellement"]["etat"][0] - bilan["ruissellement"]["etat"][1]
     )
 
     # Ecoulement vertical
-    delta["vertical"] = (
-        bilan["vertical"]["entrees"]
-        - bilan["vertical"]["sorties"]
-        + bilan["vertical"]["etat"][0]
-        - bilan["vertical"]["etat"][1]
-    )
+    delta["vertical"] = bilan["vertical"]["entrees"] - bilan["vertical"]["sorties"] + bilan["vertical"]["etat"][0] - bilan["vertical"]["etat"][1]
 
     # Milieu humide
     if modules["mhumide"] == 1:
-        delta["mhumide"] = (
-            bilan["mhumide"]["entrees"]
-            - bilan["mhumide"]["sorties"]
-            + bilan["mhumide"]["etat"][0]
-            - bilan["mhumide"]["etat"][1]
-        )
+        delta["mhumide"] = bilan["mhumide"]["entrees"] - bilan["mhumide"]["sorties"] + bilan["mhumide"]["etat"][0] - bilan["mhumide"]["etat"][1]
     else:
         delta["mhumide"] = 0.0 if nb_pas == 1 else [0.0] * nb_pas.tolist()
 
     # Ecoulement horizontal
     delta["horizontal"] = (
-        bilan["horizontal"]["entrees"]
-        - bilan["horizontal"]["sorties"]
-        + bilan["horizontal"]["etat"][0]
-        - bilan["horizontal"]["etat"][1]
+        bilan["horizontal"]["entrees"] - bilan["horizontal"]["sorties"] + bilan["horizontal"]["etat"][0] - bilan["horizontal"]["etat"][1]
     )
 
     f = list(delta.keys())

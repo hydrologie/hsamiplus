@@ -14,13 +14,13 @@ def make_project(data_dir, basin_file, param_file, projet_file):
 
     Parameters
     ----------
-    data_dir : str
+    data_dir : str or Path
         Répertoire contenant les fichiers de données.
-    basin_file : str
+    basin_file : str or Path
         Chemin d'accès au fichier de données du bassin.
-    param_file : str
+    param_file : str or Path
         Chemin d'accès au fichier de paramètres.
-    projet_file : str
+    projet_file : str or Path
         Chemin d'accès au fichier de projet de sortie.
 
     Notes
@@ -65,9 +65,7 @@ def make_project(data_dir, basin_file, param_file, projet_file):
     #  Modules
     # -----------------------------------------------------------------------------------------
     een = "dj"  # hsami, mdj, dj, alt
-    etp_bassin = (
-        "priestley_taylor"  # hsami, blaney_criddle, hamon, linacre, kharuffa, mohyse,
-    )
+    etp_bassin = "priestley_taylor"  # hsami, blaney_criddle, hamon, linacre, kharuffa, mohyse,
     # romanenko, makkink, mcguinness_bordne,
     # abtew, hargreaves, priestley_taylor
     etp_reservoir = "priestley_taylor"  # hsami,blaney_criddle, hamon, linacre, ...
@@ -105,9 +103,7 @@ def make_project(data_dir, basin_file, param_file, projet_file):
     # Meteo
     # -----------------------------------------------------------------------------------------
 
-    meteo, dates = meteohsami(
-        data_dir, donnees_bv["fichier_meteo_bv"], donnees_bv["fichier_meteo_reservoir"]
-    )
+    meteo, dates = meteohsami(data_dir, donnees_bv["fichier_meteo_bv"], donnees_bv["fichier_meteo_reservoir"])
 
     # Projet
     # -----------------------------------------------------------------------------------------
@@ -149,21 +145,13 @@ def physiohsami(donnees_bv):
         "latitude": donnees_bv["latitude_bv"],
         "altitude": donnees_bv["altitude_bv"],
         "albedo_sol": donnees_bv["albedo_sol"],
-        "i_orientation_bv": int(
-            donnees_bv["indice_orientation_bv"]
-        ),  # Indice d’orientation du bassin versant.
+        "i_orientation_bv": int(donnees_bv["indice_orientation_bv"]),  # Indice d’orientation du bassin versant.
         "pente_bv": donnees_bv["pente_bv"],  # in degrees 3.0,
-        "occupation": donnees_bv[
-            "occupation_bv"
-        ],  # Fraction d’occupation des milieux forestiers (1x3 ou 1x2,
+        "occupation": donnees_bv["occupation_bv"],  # Fraction d’occupation des milieux forestiers (1x3 ou 1x2,
         # du plus dense au plus ouvert). e.g. [0.129, 0.489, 0.382]
-        "coeff": donnees_bv[
-            "coeff_reservoir"
-        ],  # Coefficients de la courbe polynomiale de degrés 2
+        "coeff": donnees_bv["coeff_reservoir"],  # Coefficients de la courbe polynomiale de degrés 2
         # d’emmagasinement du réservoir (1x3).
-        "samax": donnees_bv[
-            "surface_maximale_mhe"
-        ],  # Superficie maximale du milieu humide équivalent
+        "samax": donnees_bv["surface_maximale_mhe"],  # Superficie maximale du milieu humide équivalent
         # 'occupation_bande':  donnees_bv['occupation_bande'],           # Fraction d’occupation par bande d’altitude (1x5).
         # e.g [0.001, 0.026, 0.29, 0.498, 0.185]
         # 'altitude_bande':    donnees_bv['altitude_bande'],             # Altitudes des bandes (1x5).
@@ -183,11 +171,11 @@ def meteohsami(data_dir, fichier_meteo_bv, fichier_meteo_reservoir):
 
     Parameters
     ----------
-    data_dir : str
+    data_dir : str or Path
         Chemin d'accès au fichier météo à lire.
-    fichier_meteo_bv : str
+    fichier_meteo_bv : str or Path
         Fichier météo du bassin versant.
-    fichier_meteo_reservoir : str
+    fichier_meteo_reservoir : str or Path
         Fichier météo du réservoir.
 
     Returns
@@ -230,7 +218,7 @@ def paramshsami(param_file):
 
     Parameters
     ----------
-    param_file : str
+    param_file : str or Path
         Chemin d'accès au fichier de paramètres à lire.
 
     Returns
@@ -260,7 +248,7 @@ def writejson(filename, dict_var):
 
     Parameters
     ----------
-    filename : str
+    filename : str or Path
         The name of the file to write the JSON data to.
     dict_var : dict
         The dictionary to convert to JSON format.

@@ -38,12 +38,8 @@ def hsami_ruissellement_surface(nb_pas, param, etat, eau_surface, modules):
     elif modules["infiltration"] == "hsami":
         # Contréle de l'infiltration et du ruissellement de surface
         effet_gel = param[8]  # effet du gel sur l'infiltration, adimensionnel
-        effet_sol = param[
-            9
-        ]  # effet du niveau de la réserve d'eau non saturée sur l'infiltration (cm)
-        seuil_min = param[
-            10
-        ]  # seuil minimal (sur 24h) é partir duquel le ruissellement de surface devient important (cm)
+        effet_sol = param[9]  # effet du niveau de la réserve d'eau non saturée sur l'infiltration (cm)
+        seuil_min = param[10]  # seuil minimal (sur 24h) é partir duquel le ruissellement de surface devient important (cm)
 
         # Niveau maximal de la réserve d'eau dans le sol (cm)
         if modules["sol"] == "hsami":

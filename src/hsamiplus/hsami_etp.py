@@ -86,14 +86,7 @@ def hsami_etp(pas, nb_pas, jj, t_min, t_max, modules, physio):
 
     # Calcul de l'ETP total pour la journée
     if modules == "hsami":  # Ex. : etp_total = 0.1788
-        etp_total = (
-            0.00065
-            * 2.54
-            * 9
-            / 5
-            * (t_max - t_min)
-            * np.exp(0.019 * (t_min * 9 / 5 + t_max * 9 / 5 + 64))
-        )
+        etp_total = 0.00065 * 2.54 * 9 / 5 * (t_max - t_min) * np.exp(0.019 * (t_min * 9 / 5 + t_max * 9 / 5 + 64))
 
     elif modules == "blaney_criddle":  # Ex. : etp_total = 0.2799
         p = etp_p(physio["latitude"], jj)
@@ -201,9 +194,7 @@ def etp_blaney_criddle(t_min, t_max, p):
 
     # Calcul de l'ETP total pour la journée
     k = 0.85  # Constante proposée par Xu et Singh (2001). Peut varier entre 0.5 et 1.2;
-    etp_total = (
-        k * p * (0.46 * t_a + 8.13) / 10
-    )  # cm, formulation en mm selon Xu et Singh (2001)
+    etp_total = k * p * (0.46 * t_a + 8.13) / 10  # cm, formulation en mm selon Xu et Singh (2001)
     etp_total = max(0, etp_total)
 
     return etp_total
@@ -291,9 +282,7 @@ def etp_linacre(t_min, t_max, physio):
     else:
         # la latitude doitêtre en degré pour cette formulation
         lat = physio["latitude"] * 180 / np.pi
-        etp_total = (
-            (500 * t_h / (100 - lat) + 15 * (t_a - t_d)) / (80 - t_a) / 10
-        )  # cm; Xu et Singh (2001)
+        etp_total = (500 * t_h / (100 - lat) + 15 * (t_a - t_d)) / (80 - t_a) / 10  # cm; Xu et Singh (2001)
 
     return etp_total
 
@@ -325,12 +314,8 @@ def etp_kharrufa(t_min, t_max, p):
     # température moyenne
     t_a = (t_min + t_max) / 2
 
-    t_a = max(
-        0, t_a
-    )  # MM20130712: Ta = 0 si elle est negative car sinon ETP = nbr imaginaire
-    etp_total = (
-        0.34 * p * t_a ** (1.3) / 10
-    )  # cm #formulation originale en mm. Xu et Singh (2001)
+    t_a = max(0, t_a)  # MM20130712: Ta = 0 si elle est negative car sinon ETP = nbr imaginaire
+    etp_total = 0.34 * p * t_a ** (1.3) / 10  # cm #formulation originale en mm. Xu et Singh (2001)
 
     return etp_total
 
@@ -366,11 +351,7 @@ def etp_mohyse(t_min, t_max, delta, physio):
 
     # Calcul de l'ETP total pour la journée
     etp_total = (
-        1
-        / np.pi
-        * np.arccos(-np.tan(physio["latitude"]) * np.tan(delta))
-        * np.exp((17.3 * t_a) / (238 + t_a))
-        / 10
+        1 / np.pi * np.arccos(-np.tan(physio["latitude"]) * np.tan(delta)) * np.exp((17.3 * t_a) / (238 + t_a)) / 10
     )  # cm, Fortin et Turcotte (2007)
 
     return etp_total
@@ -403,14 +384,10 @@ def etp_romanenko(t_min, t_max):
 
     # Pression de vapeur
     ea = etp_e(t_a)
-    ed = etp_e(
-        t_min
-    )  # on peut supposer que td=tmin pour les emplacements ou le couvert vegetal est bien humidifie (Kimball et al. (1997)
+    ed = etp_e(t_min)  # on peut supposer que td=tmin pour les emplacements ou le couvert vegetal est bien humidifie (Kimball et al. (1997)
 
     # Calcul de l'ETP total pour la journée
-    etp_total = (
-        0.0045 * (1 + t_a / 25) ** 2 * (1 - ed / ea) * 100
-    )  # cm, La version initiale est en m. Oudin (2004)
+    etp_total = 0.0045 * (1 + t_a / 25) ** 2 * (1 - ed / ea) * 100  # cm, La version initiale est en m. Oudin (2004)
 
     return etp_total
 
@@ -481,9 +458,7 @@ def etp_turc(t_min, t_max, rg):
     if t_a < 0:
         etp_total = 0
     else:
-        etp_total = (
-            k * (rg + 2.094) * (t_a / (t_a + 15)) / 10
-        )  # cm; McGuiness et Bordne (1972), unité mise en SI
+        etp_total = k * (rg + 2.094) * (t_a / (t_a + 15)) / 10  # cm; McGuiness et Bordne (1972), unité mise en SI
 
     return etp_total
 
@@ -521,9 +496,7 @@ def etp_mcguinness_bordne(t_min, t_max, rg, lamda):
 
     # Calcul de l'ETP total pour la journée
 
-    etp_total = (
-        rg / (lamda * rho_w) * (t_a + 5) / 68
-    ) * 100  # cm, version originale en m. Oudin (2004)
+    etp_total = (rg / (lamda * rho_w) * (t_a + 5) / 68) * 100  # cm, version originale en m. Oudin (2004)
 
     return etp_total
 
@@ -594,9 +567,7 @@ def etp_hargreaves(t_min, t_max, re):
     t_a = (t_min + t_max) / 2
 
     # Calcul de l'ETP total pour la journée
-    if (
-        t_max - t_min < 0
-    ):  # il y a parfois des incohérence dans les séries observées. Cette condition pourraitêtre enlevée éventuellement.
+    if t_max - t_min < 0:  # il y a parfois des incohérence dans les séries observées. Cette condition pourraitêtre enlevée éventuellement.
         etp_total = 0
     else:
         etp_total = (
@@ -635,9 +606,7 @@ def etp_priestley_taylor(rn, m, lamda):
     ct = 1.26  # constante proposée par Priesley-Taylor
 
     # Calcul de l'ETP total pour la journée
-    etp_total = (
-        ct * m * rn / (lamda * rho_w * (m + psi)) * 100
-    )  # cm; La formule proposée est en m. Oudin (2004)
+    etp_total = ct * m * rn / (lamda * rho_w * (m + psi)) * 100  # cm; La formule proposée est en m. Oudin (2004)
 
     return etp_total
 
@@ -731,9 +700,7 @@ def etp_td_linacre(t_max, t_min):
         Point de rosée.
     """
     # td Point de rosée
-    td = (
-        0.38 + t_max - 0.018 * t_max**2 + 1.4 + t_min - 5
-    )  # Proposition de Linacre pour estimer td, pas applicable dans les zones trés maritimes.
+    td = 0.38 + t_max - 0.018 * t_max**2 + 1.4 + t_min - 5  # Proposition de Linacre pour estimer td, pas applicable dans les zones trés maritimes.
 
     return td
 
@@ -760,23 +727,11 @@ def etp_rayonnement_et(lat, jj):
     """
     gsc = 0.0820  # MJ/m2/j constante solaire
 
-    dr = 1 + 0.033 * np.cos(
-        2 * np.pi / 365 * jj
-    )  # distance relative inverse terre-soleil (rad)
+    dr = 1 + 0.033 * np.cos(2 * np.pi / 365 * jj)  # distance relative inverse terre-soleil (rad)
     delta = 0.409 * np.sin(2 * np.pi * jj / 365 - 1.39)  # declinaison solaire (rad)
     ws = np.arccos(-np.tan(lat) * np.tan(delta))  # angle de coucher de soleil (rad)
 
-    re = (
-        24
-        * 60
-        / np.pi
-        * gsc
-        * dr
-        * (
-            ws * np.sin(lat) * np.sin(delta)
-            + (np.cos(lat) * np.cos(delta) * np.sin(ws))
-        )
-    )
+    re = 24 * 60 / np.pi * gsc * dr * (ws * np.sin(lat) * np.sin(delta) + (np.cos(lat) * np.cos(delta) * np.sin(ws)))
 
     return re
 
@@ -804,9 +759,7 @@ def etp_rayonnement_g(re, lat, jj, t_min=None, t_max=None):
         Rayonnement global (MJ/m^2/j).
     """
     dl = etp_duree_jour(jj, lat)
-    d = (
-        0.8 * dl
-    )  # Hypothése, nous n'avons pas d'observation pour estimer la durée effective du jour.
+    d = 0.8 * dl  # Hypothése, nous n'avons pas d'observation pour estimer la durée effective du jour.
 
     # Rayonnement global
     rg = re * (0.18 + 0.52 * d / dl)
@@ -872,9 +825,7 @@ def etp_e(t):
         Pression de vapeur.
     """
     # e Pression de vapeur
-    e = 0.6108 * np.exp(
-        (17.27 * t) / (t + 237.3)
-    )  # Lu et al. (2005)  #pression de vapeur é T
+    e = 0.6108 * np.exp((17.27 * t) / (t + 237.3))  # Lu et al. (2005)  #pression de vapeur é T
 
     return e
 
@@ -941,13 +892,7 @@ def etp_rayonnement_net(t_min, t_max, rg, rgo, albedo):
     if rapport >= 1:
         rapport = 1  # selon Xu et Singh (2002) - WRM
 
-    rnl = (
-        sigma
-        * ((t_max + k) ** 4 + (t_min + k) ** 4)
-        / 2
-        * (0.34 - 0.14 * np.sqrt(ea))
-        * (1.35 * rapport - 0.35)
-    )
+    rnl = sigma * ((t_max + k) ** 4 + (t_min + k) ** 4) / 2 * (0.34 - 0.14 * np.sqrt(ea)) * (1.35 * rapport - 0.35)
 
     # Rayonnement net
     rn = rns - rnl

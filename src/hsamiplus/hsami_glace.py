@@ -44,9 +44,7 @@ def hsami_glace(modules, superficie, etats, *varargin):
             param = varargin[2]
             if modules["glace_reservoir"] == "stefan":
                 k = param[46]
-                superficie_glace, superficie_reservoir, etats = stefan(
-                    meteo["reservoir"][:2], k, physio, etats
-                )
+                superficie_glace, superficie_reservoir, etats = stefan(meteo["reservoir"][:2], k, physio, etats)
                 # Ex. : superficie_glace = [0, 0]
                 #       superficie_reservoir = [339.1769, 339.6125]
                 #       etats['reservoir_superficie_glace'] = 0
@@ -58,9 +56,7 @@ def hsami_glace(modules, superficie, etats, *varargin):
 
             elif modules["glace_reservoir"] == "my_lake":
                 if modules["een"] == "mdj" or modules["een"] == "alt":
-                    superficie_glace, superficie_reservoir, etats = my_lake(
-                        meteo["reservoir"], physio, etats, param, modules
-                    )
+                    superficie_glace, superficie_reservoir, etats = my_lake(meteo["reservoir"], physio, etats, param, modules)
                     # Ex. : superficie_glace = [99, 98]
                     #       superficie_reservoir = [339.1769, 339.6125]
                     #       etat['reservoir_superficie'] = 339.6125
@@ -74,14 +70,10 @@ def hsami_glace(modules, superficie, etats, *varargin):
                         "Le module 'my_lake' pour la glace de réservoir doit être utilisé obligatoirement avec le module 'mdj' ou 'alt' pour la neige"
                     )
             else:
-                raise ValueError(
-                    "modules.glace_reservoir doit être 'stefan' ou 'my_lake'"
-                )
+                raise ValueError("modules.glace_reservoir doit être 'stefan' ou 'my_lake'")
 
             # Épaisseur de la glace flottante en cm
-            etats["reservoir_epaisseur_glace"] = (
-                etats["reservoir_epaisseur_glace"] * 100
-            )
+            etats["reservoir_epaisseur_glace"] = etats["reservoir_epaisseur_glace"] * 100
 
             # Fraction du bassin versant occupée par le réservoir
             etats["ratio_reservoir"] = superficie_reservoir[1] / superficie[0]
@@ -90,9 +82,7 @@ def hsami_glace(modules, superficie, etats, *varargin):
 
             # Variations des superficies de berges et de réservoir
             delta_glace = superficie_glace[1] - superficie_glace[0]
-            delta_reservoir = (
-                superficie_reservoir[1] - superficie_reservoir[0]
-            ) / superficie[0]
+            delta_reservoir = (superficie_reservoir[1] - superficie_reservoir[0]) / superficie[0]
 
         else:
             # On considère la superficie du réservoir fixe
@@ -177,9 +167,7 @@ def stefan(meteo, k, physio, etats):
     coeff = physio["coeff"]
 
     # Variables locales
-    hiverglacio = (
-        -200
-    )  # Début de l'hiver glaciologique aprés hiverglacio degrés-jours négatifs
+    hiverglacio = -200  # Début de l'hiver glaciologique aprés hiverglacio degrés-jours négatifs
     nbj = 21  # Nombre de jours de stagnation pour declencher le dégel
 
     # Calcul des degrés jours de gel
@@ -333,9 +321,7 @@ def my_lake(meteo, physio, etat, param, modules):
 
         # Calcul de la croissance thermique de la glace flottante en
         # fonction de sa température
-        epaisseur_glace[1] = np.sqrt(
-            epaisseur_glace[0] ** 2 + (2 * k_i * 86400 / (rho_i * lf)) * (-ti)
-        )
+        epaisseur_glace[1] = np.sqrt(epaisseur_glace[0] ** 2 + (2 * k_i * 86400 / (rho_i * lf)) * (-ti))
         # Ex. : epaisseur_glace[1] = 0.7488
 
         if not np.isreal(epaisseur_glace[1]) or epaisseur_glace[1] == 0:
@@ -361,16 +347,12 @@ def my_lake(meteo, physio, etat, param, modules):
             # Mise à jour de l'énergie contenue dans la glace selon sa température estimée
             energie = ti * epaisseur_glace[0] * rho_i * c_i
 
-            if (
-                couvert == 0
-            ):  # Si toute la neige est fondue, la glace peut accumuler de l'énergie et fondre
+            if couvert == 0:  # Si toute la neige est fondue, la glace peut accumuler de l'énergie et fondre
                 # Chaleur de la pluie
                 energie = energie + (meteo[2] / 100) * rho_w * (lf + c_w * t_a)
 
                 # Radiation
-                indice_radiation = (
-                    1.15 - 0.4 * np.exp(-0.38 * etat["derniere_neige"])
-                ) * (meteo[4] / 0.52) ** 0.33
+                indice_radiation = (1.15 - 0.4 * np.exp(-0.38 * etat["derniere_neige"])) * (meteo[4] / 0.52) ** 0.33
                 albedo = 0.33
 
                 if modules["een"] == "alt":

@@ -65,9 +65,7 @@ class TestHsamibin(unittest.TestCase):
             f.write(output_json)
 
         # Check calls
-        mock_file.assert_called_once_with(
-            Path(self.path) / "output_01_01_2025.json", "w"
-        )
+        mock_file.assert_called_once_with(Path(self.path) / "output_01_01_2025.json", "w")
 
         # Check if the output file was written correctly
         mock_file().write.assert_called_once_with(output_json)

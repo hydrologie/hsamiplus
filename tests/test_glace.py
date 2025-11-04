@@ -1,4 +1,3 @@
-import sys
 import unittest
 
 import numpy as np
@@ -52,9 +51,7 @@ class TestHsamiGlace(unittest.TestCase):
 
     def test_hsami_glace_no_reservoir(self):
         self.modules["reservoir"] = 0
-        glace_vers_reservoir, bassin_vers_reservoir, etats = hsami_glace(
-            self.modules, self.superficie, self.etats
-        )
+        glace_vers_reservoir, bassin_vers_reservoir, etats = hsami_glace(self.modules, self.superficie, self.etats)
         self.assertEqual(glace_vers_reservoir, 0)
         self.assertEqual(bassin_vers_reservoir, 0)
         self.assertEqual(etats["reservoir_epaisseur_glace"], 0)
@@ -185,10 +182,7 @@ class TestHsamiGlace(unittest.TestCase):
                 self.physio,
                 self.param,
             )
-        self.assertTrue(
-            "modules.glace_reservoir doit être 'stefan' ou 'my_lake'"
-            in str(context.exception)
-        )
+        self.assertTrue("modules.glace_reservoir doit être 'stefan' ou 'my_lake'" in str(context.exception))
 
     def test_hsami_glace_conductivite_neige(self):
         # Test cases with known inputs and expected outputs

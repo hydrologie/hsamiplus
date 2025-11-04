@@ -109,9 +109,7 @@ def hsami_ecoulement_vertical(
             if modules["infiltration"] == "green_ampt":
                 ks = 10 ** param[34]
                 psi = param[25]
-                inf_potentielle, apport[2] = green_ampt(
-                    offre, ks, psi, sol_max, sol, nb_pas, gel, neige_au_sol
-                )
+                inf_potentielle, apport[2] = green_ampt(offre, ks, psi, sol_max, sol, nb_pas, gel, neige_au_sol)
                 # Ex.: inf_potentielle = 0.0917
                 #      apport[2] = 0
 
@@ -158,9 +156,7 @@ def hsami_ecoulement_vertical(
         # ----------------------------------
         # Vidange et débordement de la nappe
         # ----------------------------------
-        apport, nappe, sol = vidange_nappe(
-            apport, nappe, taux_vidange_nappe, nappe_max, nb_pas, modules, param, sol
-        )
+        apport, nappe, sol = vidange_nappe(apport, nappe, taux_vidange_nappe, nappe_max, nb_pas, modules, param, sol)
         # Ex.: modules['infiltration'] = 'hsami',       apport = [0.0548; 0.0203; 0.0103; 0.0917; 0]
         #                                            nappe = 6.7919
         #                                            sol = 6.1920
@@ -282,9 +278,7 @@ def ecoulement_3couches(
     ks = [10 ** param[24], 10 ** param[38]]  # cond. hyd. sat. (cm/j)
     pfp = param[41]  # point de flétrissement permanent (cm/cm)
     nappe_max = param[13]  # quantité d'eau maximale dans la nappe (cm)
-    portion_ruissellement_surface = param[
-        14
-    ]  # séparation du ruissellement hypodermique
+    portion_ruissellement_surface = param[14]  # séparation du ruissellement hypodermique
     taux_vidange_nappe = param[17] / nb_pas  # taux de vidange de la nappe
     c = 2.0 * np.array(b) + 3  # pore-disconnectedness index (adim.)
 
@@ -347,9 +341,7 @@ def ecoulement_3couches(
         # Calcul de pompage_min é partir de l'épaisseur de la couche et du point de
         # flétrissement permanent
         limite_pompage = pfp * z[0]
-        pompage = min(
-            sol[0] - limite_pompage, -sol[0] / sol_max[0] * ecart_offre_demande
-        )
+        pompage = min(sol[0] - limite_pompage, -sol[0] / sol_max[0] * ecart_offre_demande)
 
         # Ex.: modules.qbase = 'hsami',   pompage = 0.0831
         #      modules.qbase = 'dingman', pompage = 0.0831
@@ -363,7 +355,7 @@ def ecoulement_3couches(
     pas_1h = int(24 / nb_pas)
     recharge = 0
 
-    for i_p in range(0, pas_1h):
+    for _i_p in range(0, pas_1h):
         # Calcul de K
         k = [
             ks[0] * (sol[0] / sol_max[0]) ** c[0],
@@ -460,9 +452,7 @@ def ecoulement_3couches(
 
 
 # Vidange et débordement de la nappe
-def vidange_nappe(
-    apport, nappe, taux_vidange_nappe, nappe_max, nb_pas, modules, param, sol
-):
+def vidange_nappe(apport, nappe, taux_vidange_nappe, nappe_max, nb_pas, modules, param, sol):
     """
     Effectue la vidange d'une nappe phréatique en fonction des paramètres donnés.
 
@@ -572,9 +562,7 @@ def green_ampt(eau_surface, ks, psi, sol_max, sol, nb_pas, gel, neige_au_sol, *a
         else:
 
             def fctobj(f):
-                return abs(
-                    -f + k / nb_pas + abs(psi) * m * np.log(1 + (f / (abs(psi) * m)))
-                )
+                return abs(-f + k / nb_pas + abs(psi) * m * np.log(1 + (f / (abs(psi) * m))))
 
             f = optimize.fminbound(fctobj, 0, eau_surface * nb_pas)
 

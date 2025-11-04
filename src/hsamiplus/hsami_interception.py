@@ -1,7 +1,6 @@
 """The function simulates the interception of water in HSAMI+ model."""
 
 from __future__ import annotations
-
 from math import ceil
 
 import numpy as np
@@ -89,9 +88,7 @@ def hsami_interception(nb_pas, jj, param, meteo, etp, etat, modules, physio):
     # -----------------------------------
     # Identification des variables d'état
     # -----------------------------------
-    neige_au_sol = etat[
-        "neige_au_sol"
-    ]  # équivalent en eau de la neige au sol incluant l'eau de fonte
+    neige_au_sol = etat["neige_au_sol"]  # équivalent en eau de la neige au sol incluant l'eau de fonte
     fonte = etat["fonte"]  # eau liquide stockée dans la neige
     neige_au_sol_totale = etat["nas_tot"]  # total des chutes de neige pendant l'hiver
     fonte_totale = etat["fonte_tot"]  # total de la fonte de neige pendant l'hiver
@@ -103,9 +100,7 @@ def hsami_interception(nb_pas, jj, param, meteo, etp, etat, modules, physio):
         sol = etat["sol"][0]  # reserve d'eau dans la zone non-saturée
     elif modules["sol"] == "3couches":
         sol = etat["sol"][0]  # reserve d'eau dans la zone non-saturée
-        sol_min = (
-            param[41] * param[39]
-        )  # Le gel de l'eau dans le sol est permis jusqu'au point de flétrissement permanent
+        sol_min = param[41] * param[39]  # Le gel de l'eau dans le sol est permis jusqu'au point de flétrissement permanent
 
     # ----------
     # SIMULATION
@@ -368,9 +363,7 @@ def dj_hsami(  # noqa: C901
         # froid
         if neige_au_sol > 0.0254:
             # gel de l'eau libre dans la neige
-            fonte, fonte_totale = gel_neige(
-                duree, dt_max, neige_au_sol, fonte, fonte_totale
-            )
+            fonte, fonte_totale = gel_neige(duree, dt_max, neige_au_sol, fonte, fonte_totale)
             # Ex1. : fonte = 0 ('hsami' et 'dj')
             #        fonte_totale = 0 ('hsami et 'dj')
 
@@ -382,9 +375,7 @@ def dj_hsami(  # noqa: C901
                     neige_au_sol_totale,
                     fonte,
                     fonte_totale,
-                ) = percolation_eau_fonte(
-                    neige_au_sol, neige_au_sol_totale, fonte, fonte_totale
-                )
+                ) = percolation_eau_fonte(neige_au_sol, neige_au_sol_totale, fonte, fonte_totale)
                 eau_surface = eau_fonte
 
     else:  # dt_max >= 0
@@ -406,22 +397,14 @@ def dj_hsami(  # noqa: C901
 
         if neige_au_sol > 0:
             # On estime la proportion du bassin qui est couverte de neige
-            aire_enneigee = effet_redoux_sur_aire_enneigee * (
-                1 - fonte_totale / neige_au_sol_totale
-            )
-            aire_enneigee = max(
-                0.1, min(i for i in [aire_enneigee, 1] if i is not np.nan)
-            )
+            aire_enneigee = effet_redoux_sur_aire_enneigee * (1 - fonte_totale / neige_au_sol_totale)
+            aire_enneigee = max(0.1, min(i for i in [aire_enneigee, 1] if i is not np.nan))
 
             # Estimation de l'accélération de la fonte causée par la radiation solaire
-            effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
-                soleil / 0.52
-            ) ** 0.33
+            effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (soleil / 0.52) ** 0.33
 
             # On estime la fonte pour le jour et la nuit
-            fonte_jour = (
-                dt_max * aire_enneigee * taux_fonte_jour * effet_radiation * duree
-            )
+            fonte_jour = dt_max * aire_enneigee * taux_fonte_jour * effet_radiation * duree
             fonte_nuit = dt_min * aire_enneigee * taux_fonte_nuit * duree
 
             neige_fondue = fonte_jour + fonte_nuit
@@ -429,16 +412,12 @@ def dj_hsami(  # noqa: C901
             # On accentue la fonte en tenant compte de la chaleur de la pluie
             t_moy = 2 / 3 * t_max + 1 / 3 * t_min
             if t_moy > temp_ref_pluie:
-                effet_chaleur_pluie = (
-                    0.0126 * (t_moy - temp_ref_pluie) * aire_enneigee * pluie
-                )
+                effet_chaleur_pluie = 0.0126 * (t_moy - temp_ref_pluie) * aire_enneigee * pluie
                 neige_fondue = neige_fondue + effet_chaleur_pluie
 
             if modules["een"] == "hsami":
                 # On ajoute la pluie au stock de neige et on retire l'évaporation
-                pluie_moins_evaporation = (
-                    pluie - efficacite_evapo_hiver * demande_eau
-                ) * aire_enneigee
+                pluie_moins_evaporation = (pluie - efficacite_evapo_hiver * demande_eau) * aire_enneigee
 
                 if neige_au_sol + pluie_moins_evaporation < 0:
                     etr[1] = neige_au_sol + pluie * aire_enneigee
@@ -467,26 +446,18 @@ def dj_hsami(  # noqa: C901
                 neige_solide = neige_au_sol - fonte
 
                 if potentiel_fonte < 0:
-                    potentiel_gel = (
-                        -potentiel_fonte
-                    )  # potentiel_fonte est en réalité un potentiel de gel
+                    potentiel_gel = -potentiel_fonte  # potentiel_fonte est en réalité un potentiel de gel
 
                     if fonte - potentiel_gel >= 0:  # s'il y a assez d'eau de fonte
                         fonte = fonte - potentiel_gel  # le potentiel de gel est comblé
-                        neige_solide = (
-                            neige_solide + potentiel_gel
-                        )  # l'eau est transférée à la phase solide
+                        neige_solide = neige_solide + potentiel_gel  # l'eau est transférée à la phase solide
                     else:
-                        neige_solide = (
-                            neige_solide + fonte
-                        )  # sinon toute l'eau de fonte disponible est gelée
+                        neige_solide = neige_solide + fonte  # sinon toute l'eau de fonte disponible est gelée
                         fonte = 0
 
                 elif neige_solide - potentiel_fonte >= 0:
                     fonte = fonte + potentiel_fonte  # le potentiel de fonte est comblé
-                    neige_solide = (
-                        neige_solide - potentiel_fonte
-                    )  # la neige solide est réduite
+                    neige_solide = neige_solide - potentiel_fonte  # la neige solide est réduite
                 else:
                     fonte = fonte + neige_solide  # toute la neige solide fond
                     neige_solide = 0
@@ -500,9 +471,7 @@ def dj_hsami(  # noqa: C901
                 if demande > 0:
                     if pluie_sur_neige - demande >= 0:
                         etr[1] = demande  # la demande est satisfaite
-                        pluie_sur_neige = (
-                            pluie_sur_neige - demande
-                        )  # la pluie est réduite
+                        pluie_sur_neige = pluie_sur_neige - demande  # la pluie est réduite
                     else:
                         etr[1] = pluie_sur_neige  # toute la pluie est évaporée
                         demande = demande - pluie_sur_neige  # la demande est réduite
@@ -520,13 +489,9 @@ def dj_hsami(  # noqa: C901
                             # On sublime ensuite la neige solide
                             if neige_solide - demande >= 0:
                                 etr[0] = etr[0] + demande  # la demande est comblée
-                                neige_solide = (
-                                    neige_solide - demande
-                                )  # la neige est réduite
+                                neige_solide = neige_solide - demande  # la neige est réduite
                             else:
-                                etr[0] = (
-                                    etr[0] + neige_solide
-                                )  # toute la neige est sublimée
+                                etr[0] = etr[0] + neige_solide  # toute la neige est sublimée
                                 neige_solide = 0
 
                 # Mise à jour du couvert de neige
@@ -547,9 +512,7 @@ def dj_hsami(  # noqa: C901
                     neige_au_sol_totale,
                     fonte,
                     fonte_totale,
-                ) = percolation_eau_fonte(
-                    neige_au_sol, neige_au_sol_totale, fonte, fonte_totale
-                )
+                ) = percolation_eau_fonte(neige_au_sol, neige_au_sol_totale, fonte, fonte_totale)
                 eau_surface = eau_surface + eau_fonte
             else:
                 eau_surface = eau_surface + neige_au_sol
@@ -563,17 +526,13 @@ def dj_hsami(  # noqa: C901
             for i_g in range(len(eeg)):
                 if neige_au_sol == 0 and eeg[i_g] > 0:
                     # Estimation de l'accélération de la fonte causée par la radiation solaire
-                    effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
-                        soleil / 0.52
-                    ) ** 0.33
+                    effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (soleil / 0.52) ** 0.33
 
                     # On estime la fonte pour le jour et la nuit.
                     # Les taux de fonte de la neige sont multipliés
                     # par 1.5 pour la glace selon Braithwaite (1995)
                     # et Singh et al (1999).
-                    fonte_jour = (
-                        dt_max * 1.5 * taux_fonte_jour * effet_radiation * duree
-                    )
+                    fonte_jour = dt_max * 1.5 * taux_fonte_jour * effet_radiation * duree
                     fonte_nuit = dt_min * 1.5 * taux_fonte_nuit * duree
 
                     potentiel_fonte = fonte_jour + fonte_nuit
@@ -582,9 +541,7 @@ def dj_hsami(  # noqa: C901
                     t_moy = 2 / 3 * t_max + 1 / 3 * t_min
 
                     if t_moy > temp_ref_pluie:
-                        effet_chaleur_pluie = (
-                            0.0126 * (t_moy - temp_ref_pluie) * meteo.reservoir(3)
-                        )
+                        effet_chaleur_pluie = 0.0126 * (t_moy - temp_ref_pluie) * meteo.reservoir(3)
                         potentiel_fonte = potentiel_fonte + effet_chaleur_pluie
 
                     # Fonte réelle en fonction de la glace disponible
@@ -604,17 +561,13 @@ def dj_hsami(  # noqa: C901
             for i_g in range(len(eeg)):
                 if eeg[i_g] > 0:
                     # Estimation de l'accélération de la fonte causée par la radiation solaire
-                    effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
-                        soleil / 0.52
-                    ) ** 0.33
+                    effet_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (soleil / 0.52) ** 0.33
 
                     # On estime la fonte pour le jour et la nuit.
                     # Les taux de fonte de la neige sont multipliés
                     # par 1.5 pour la glace selon Braithwaite (1995)
                     # et Singh et al (1999).
-                    fonte_jour = (
-                        dt_max * 1.5 * taux_fonte_jour * effet_radiation * duree
-                    )
+                    fonte_jour = dt_max * 1.5 * taux_fonte_jour * effet_radiation * duree
                     fonte_nuit = dt_min * 1.5 * taux_fonte_nuit * duree
 
                     potentiel_fonte = fonte_jour + fonte_nuit
@@ -623,9 +576,7 @@ def dj_hsami(  # noqa: C901
                     t_moy = 2 / 3 * t_max + 1 / 3 * t_min
 
                     if t_moy > temp_ref_pluie:
-                        effet_chaleur_pluie = (
-                            0.0126 * (t_moy - temp_ref_pluie) * meteo["reservoir"][2]
-                        )
+                        effet_chaleur_pluie = 0.0126 * (t_moy - temp_ref_pluie) * meteo["reservoir"][2]
                         potentiel_fonte = potentiel_fonte + effet_chaleur_pluie
 
                     # Fonte réelle en fonction de la glace disponible
@@ -779,12 +730,8 @@ def mdj_alt(  # noqa: C901
 
     if modules["een"] == "mdj":
         for i_z in range(n):
-            taux_de_fonte[i_z] = (
-                param[28 + i_z] / 100
-            )  # Taux de fonte - milieu(i_z) # /100 pour cm --> m/degC/jour
-            temperature_de_fonte[i_z] = param[
-                31 + i_z
-            ]  # Température de fonte - milieu(i_z) # degC
+            taux_de_fonte[i_z] = param[28 + i_z] / 100  # Taux de fonte - milieu(i_z) # /100 pour cm --> m/degC/jour
+            temperature_de_fonte[i_z] = param[31 + i_z]  # Température de fonte - milieu(i_z) # degC
 
     elif modules["een"] == "alt":
         taux_de_fonte[:] = param[2] / 100
@@ -799,25 +746,13 @@ def mdj_alt(  # noqa: C901
     # Constantes
     # ----------
     rho_w = 1000  # Masse volumique de léeau (kg/m3)
-    chaleur_latente_fusion = (
-        335000  # Chaleur de fusion de l'eau (J/kg) solide-->liquide
-    )
-    chaleur_latente_evaporation = (
-        2500000  # Chaleur de vaporisation de l'eau (J/kg) liquide-->gaseux
-    )
-    chaleur_latente_sublimation = (
-        2834000  # Chaleur de sublimation de l'eau (J/kg) solide-->gaseux
-    )
-    capacite_thermique_massique_eau_solide = (
-        2093.4  # Chaleur spécifique de l'eau solide é 0degC (J/(kg*degC))
-    )
-    capacite_thermique_massique_eau_liquide = (
-        4216  # Chaleur spécifique de l'eau liquide é 0degC (J/(kg*degC))
-    )
+    chaleur_latente_fusion = 335000  # Chaleur de fusion de l'eau (J/kg) solide-->liquide
+    chaleur_latente_evaporation = 2500000  # Chaleur de vaporisation de l'eau (J/kg) liquide-->gaseux
+    chaleur_latente_sublimation = 2834000  # Chaleur de sublimation de l'eau (J/kg) solide-->gaseux
+    capacite_thermique_massique_eau_solide = 2093.4  # Chaleur spécifique de l'eau solide é 0degC (J/(kg*degC))
+    capacite_thermique_massique_eau_liquide = 4216  # Chaleur spécifique de l'eau liquide é 0degC (J/(kg*degC))
     constante_tassement = 0.1  # Pour le calcul de la compaction
-    densite_maximale = (
-        466  # Densité maximale d'un couvert de neige (kg/m3) - Turcotte et al. (2007)
-    )
+    densite_maximale = 466  # Densité maximale d'un couvert de neige (kg/m3) - Turcotte et al. (2007)
     conductivite_glace = 2.24  # Conductivité thermique de la glace, (W/(m*degC))
 
     # -----------------------------------------------------
@@ -831,7 +766,7 @@ def mdj_alt(  # noqa: C901
     eeg = eeg / 100
 
     nas_moy = np.sum(
-        [a * b for a, b in zip(etat[modules["een"]]["neige_au_sol"][0:n], occupation)]
+        [a * b for a, b in zip(etat[modules["een"]]["neige_au_sol"][0:n], occupation, strict=False)]
     )  # nas_moy sert seulement pour la maj de l'een.
 
     # Ex1. :  modules['een'] = 'mdj', nas_moy = 0.0653
@@ -958,9 +893,7 @@ def mdj_alt(  # noqa: C901
         dt_max = t_max - temperature_de_fonte[i_z]
 
         if dt_max <= 0:
-            sol, gel = gel_sol(
-                duree, dt_max, sol_min, sol, gel, neige_au_sol * 100
-            )  # *100 car Neige au sol doit être en cm.
+            sol, gel = gel_sol(duree, dt_max, sol_min, sol, gel, neige_au_sol * 100)  # *100 car Neige au sol doit être en cm.
             # Ex1. : modules['een'] = 'mdj', i_z = 1, sol = 2.4932, gel = 0.0351
             #                                i_z = 2, sol = 2.4888, gel = 0.0395
             #                                i_z = 3, sol = 2.4888, gel = 0.0395
@@ -1018,19 +951,14 @@ def mdj_alt(  # noqa: C901
             # Ajustement du bilan énergétique par l'ajout de la
             # précipitation neigeuse
             # -------------------------------------------------
-            energie_neige = (
-                energie_neige
-                + neige * rho_w * capacite_thermique_massique_eau_solide * tmoy
-            )
+            energie_neige = energie_neige + neige * rho_w * capacite_thermique_massique_eau_solide * tmoy
             # -------------------------------------------------------
             # Ajustement du bilan énergétique par la convection selon
             # la température de la neige
             # -------------------------------------------------------
             if tmoy < temperature_de_fonte[i_z]:
                 # Estimation de la température de la neige
-                tneige = energie_neige / (
-                    neige_au_sol * capacite_thermique_massique_eau_solide * rho_w
-                )
+                tneige = energie_neige / (neige_au_sol * capacite_thermique_massique_eau_solide * rho_w)
 
                 # Estimation temporaire de la hauteur de neige
                 if couvert_neige < 0.4:
@@ -1039,9 +967,7 @@ def mdj_alt(  # noqa: C901
                     hneige = 0.2 + 0.25 * (couvert_neige - 0.4)
 
                 # Estimation de l'erreur pour le calcul de la température de la neige
-                alpha = conductivite_neige(dennei * rho_w) / (
-                    dennei * rho_w * capacite_thermique_massique_eau_solide
-                )
+                alpha = conductivite_neige(dennei * rho_w) / (dennei * rho_w * capacite_thermique_massique_eau_solide)
                 erf = calcul_erf(hneige / (2 * np.sqrt(alpha * pdts)))
                 # Ex1. : modules['een'] = 'mdj', i_z = 1, alpha = 3.2224e-07, erf = 0.5806
                 #                             i_z = 2, alpha = 3.2492e-07, erf = 0.5843
@@ -1056,12 +982,7 @@ def mdj_alt(  # noqa: C901
                 tneige = tmoy + (tneige - tmoy) * erf
 
                 # Mise à jour de l'énergie contenue dans la neige selon sa température estimée
-                energie_neige = (
-                    tneige
-                    * neige_au_sol
-                    * rho_w
-                    * capacite_thermique_massique_eau_solide
-                )
+                energie_neige = tneige * neige_au_sol * rho_w * capacite_thermique_massique_eau_solide
 
             # --------------------------------------------------------
             # Ajustement du bilan énergétique selon les précipitations
@@ -1069,17 +990,13 @@ def mdj_alt(  # noqa: C901
             # --------------------------------------------------------
             neige_au_sol = neige_au_sol + pluie
             fonte = fonte + pluie
-            energie_neige = energie_neige + pluie * rho_w * (
-                chaleur_latente_fusion + capacite_thermique_massique_eau_liquide * tmoy
-            )
+            energie_neige = energie_neige + pluie * rho_w * (chaleur_latente_fusion + capacite_thermique_massique_eau_liquide * tmoy)
 
             # -------------------------------------------------
             # Ajustement du bilan énergétique selon le gradient
             # géothermique
             # -------------------------------------------------
-            energie_neige = (
-                energie_neige + (taux_fonte_ns * duree) * rho_w * chaleur_latente_fusion
-            )
+            energie_neige = energie_neige + (taux_fonte_ns * duree) * rho_w * chaleur_latente_fusion
 
             # --------------------------------------------------------
             # Ajustement du bilan énergétique selon la radiation et la
@@ -1105,9 +1022,7 @@ def mdj_alt(  # noqa: C901
                 # Si les caractéristiques physiographiques du bassin ne sont
                 # pas Args : dans la fonction, l'indice de radiation est
                 # calculé comme dans le hsami original.
-                indice_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (
-                    soleil / 0.52
-                ) ** 0.33
+                indice_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (soleil / 0.52) ** 0.33
                 # Ex1. : modules['een'] = 'mdj', i_z = 1, indice_radiation = 0.8652
                 #                                i_z = 2, indice_radiation = 0.8652
                 #                                i_z = 3, indice_radiation = 0.8652
@@ -1131,53 +1046,34 @@ def mdj_alt(  # noqa: C901
             # -----------------------------------------------------------
             # Détermination de la fonte potentielle si le couvert est mûr
             # -----------------------------------------------------------
-            if (
-                tmoy > temperature_de_fonte[i_z]
-            ):  # Limitation : tmoy est le méme pour toutes les zones
-                potentiel_fonte = (
-                    taux_de_fonte[i_z]
-                    * duree
-                    * (tmoy - temperature_de_fonte[i_z])
-                    * indice_radiation
-                    * (1 - albedo_neige)
-                )
+            if tmoy > temperature_de_fonte[i_z]:  # Limitation : tmoy est le méme pour toutes les zones
+                potentiel_fonte = taux_de_fonte[i_z] * duree * (tmoy - temperature_de_fonte[i_z]) * indice_radiation * (1 - albedo_neige)
             else:
                 potentiel_fonte = 0
 
             # --------------------------------
             # Mise é jour du bilan énergétique
             # --------------------------------
-            energie_neige = energie_neige + (
-                potentiel_fonte * rho_w * chaleur_latente_fusion
-            )
+            energie_neige = energie_neige + (potentiel_fonte * rho_w * chaleur_latente_fusion)
 
             # =======================
             # Calcul de la compaction
             # =======================
 
             # Hauteur du couvert nival et de sa densité aprés compaction.
-            compaction = (
-                couvert_neige
-                * constante_tassement
-                * duree
-                * (1 - dennei / densite_maximale * 1000)
-            )
+            compaction = couvert_neige * constante_tassement * duree * (1 - dennei / densite_maximale * 1000)
             if compaction < 0:
                 compaction = 0
 
             couvert_neige = couvert_neige - compaction
-            dennei = (
-                neige_au_sol / couvert_neige
-            )  # cette valeur peut être tres élevée quand de la pluie a été ajoutée à
+            dennei = neige_au_sol / couvert_neige  # cette valeur peut être tres élevée quand de la pluie a été ajoutée à
             #  la neige_au_sol, la dennei est réajustée aprés.
 
             # Correction de la densité si elle dépasse la densité maximale (survient principalement lorsque de la pluie
             # a été ajoutée au couvert de neige)
             if dennei * rho_w > densite_maximale:
                 dennei = densite_maximale / rho_w
-                couvert_neige = (
-                    neige_au_sol / dennei
-                )  # couvert_neige est é densité max.
+                couvert_neige = neige_au_sol / dennei  # couvert_neige est é densité max.
 
             # =======================================
             # Calcul de la fonte selon le mûrissement
@@ -1228,9 +1124,7 @@ def mdj_alt(  # noqa: C901
                 # -------------------------------
                 # Ajustement du bilan énergétique
                 # -------------------------------
-                energie_neige = energie_neige - (
-                    percolation * rho_w * chaleur_latente_fusion
-                )
+                energie_neige = energie_neige - (percolation * rho_w * chaleur_latente_fusion)
 
                 # ===========================================
                 # évaporation de l'eau contenue dans la neige
@@ -1243,9 +1137,7 @@ def mdj_alt(  # noqa: C901
                 # Le couvert a maintenant une capacité de retenue, l'eau qui est retenue peut s'évaporer au
                 # taux hivernal selon la disponibilité.
                 etr[1] = demande * efficacite_evapo_hiver  # m
-                if (
-                    fonte > etr[1]
-                ):  # il y a assez d'eau retenue dans le couvert pour satisfaire la demande en eau de l'atmosphére.
+                if fonte > etr[1]:  # il y a assez d'eau retenue dans le couvert pour satisfaire la demande en eau de l'atmosphére.
                     fonte = fonte - etr[1]
                     neige_au_sol = neige_au_sol - etr[1]
                     couvert_neige = couvert_neige - etr[1] / dennei
@@ -1274,9 +1166,7 @@ def mdj_alt(  # noqa: C901
                 # -------------------------------
                 # Ajustement du bilan énergétique
                 # -------------------------------
-                energie_neige = energie_neige - (
-                    etr[1] * rho_w * chaleur_latente_evaporation
-                )
+                energie_neige = energie_neige - (etr[1] * rho_w * chaleur_latente_evaporation)
 
             else:
                 # ===============================================
@@ -1309,9 +1199,7 @@ def mdj_alt(  # noqa: C901
                 # -------------------------------
                 # Ajustement du bilan énergétique
                 # -------------------------------
-                energie_neige = energie_neige - (
-                    etr[0] * rho_w * chaleur_latente_sublimation
-                )
+                energie_neige = energie_neige - (etr[0] * rho_w * chaleur_latente_sublimation)
 
             # ===================================================
             # Ajustements pour éviter les instabilités numériques
@@ -1341,9 +1229,7 @@ def mdj_alt(  # noqa: C901
                     for i_g in range(len(eeg)):
                         if eeg[i_g] > 0:
                             # Calcul de la température moyenne
-                            tmoy_glace = (
-                                meteo.reservoir[0] + meteo["reservoir"][0]
-                            ) / 2
+                            tmoy_glace = (meteo.reservoir[0] + meteo["reservoir"][0]) / 2
 
                             # Calcul du bilan d'énergie pour la glace
                             # -------------------------------------------------------
@@ -1352,55 +1238,33 @@ def mdj_alt(  # noqa: C901
                             # -------------------------------------------------------
                             if tmoy_glace < temperature_de_fonte[i_z]:
                                 # Estimation de la température de la glace
-                                tglace = energie_glace / (
-                                    eeg[i_g]
-                                    * capacite_thermique_massique_eau_solide
-                                    * rho_w
-                                )
+                                tglace = energie_glace / (eeg[i_g] * capacite_thermique_massique_eau_solide * rho_w)
 
                                 # Estimation de l'erreur pour le calcul de la
                                 # température de la glace
                                 denglace = 0.917  # densité fixée à 0.917, glace normale à 0 degré
 
-                                alpha = conductivite_glace / (
-                                    denglace
-                                    * rho_w
-                                    * capacite_thermique_massique_eau_solide
-                                )
-                                erf = calcul_erf(
-                                    (eeg[i_g] / denglace) / (2 * np.sqrt(alpha * pdts))
-                                )
+                                alpha = conductivite_glace / (denglace * rho_w * capacite_thermique_massique_eau_solide)
+                                erf = calcul_erf((eeg[i_g] / denglace) / (2 * np.sqrt(alpha * pdts)))
 
                                 # Température de la glace corrigée
                                 tglace = tmoy_glace + (tglace - tmoy_glace) * erf
 
                                 # Mise à jour de l'énergie contenue dans la glace selon sa température estimée
-                                energie_glace = (
-                                    tglace
-                                    * eeg[i_g]
-                                    * rho_w
-                                    * capacite_thermique_massique_eau_solide
-                                )
+                                energie_glace = tglace * eeg[i_g] * rho_w * capacite_thermique_massique_eau_solide
 
                             # --------------------------------------------------------
                             # Ajustement du bilan énergétique selon la radiation et la
                             # température moyenne
                             # --------------------------------------------------------
-                            indice_radiation = (
-                                1.15 - 0.4 * np.exp(-0.38 * derniere_neige)
-                            ) * (soleil / 0.52) ** 0.33
+                            indice_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (soleil / 0.52) ** 0.33
                             albedo_glace = 0.6
 
                             # -------------------------------------------------
                             # Ajustement du bilan énergétique selon le gradient
                             # géothermique
                             # -------------------------------------------------
-                            energie_glace = (
-                                energie_glace
-                                + (taux_fonte_ns * duree)
-                                * rho_w
-                                * chaleur_latente_fusion
-                            )
+                            energie_glace = energie_glace + (taux_fonte_ns * duree) * rho_w * chaleur_latente_fusion
 
                             # -----------------------------------------------------------
                             # Détermination de la fonte potentielle si le couvert est mûr
@@ -1423,9 +1287,7 @@ def mdj_alt(  # noqa: C901
                             # --------------------------------
                             # Mise à jour du bilan énergétique
                             # --------------------------------
-                            energie_glace = energie_glace + (
-                                potentiel_fonte * rho_w * chaleur_latente_fusion
-                            )
+                            energie_glace = energie_glace + (potentiel_fonte * rho_w * chaleur_latente_fusion)
 
                             # =======================================
                             # Calcul de la fonte selon le mûrissement
@@ -1433,9 +1295,7 @@ def mdj_alt(  # noqa: C901
                             if energie_glace > 0:  # La glace est mûre
                                 # Estimation de la glace pouvant fondre selon son niveau
                                 # d'énergie
-                                potentiel_fonte = (
-                                    energie_glace / chaleur_latente_fusion / rho_w
-                                )
+                                potentiel_fonte = energie_glace / chaleur_latente_fusion / rho_w
 
                                 # La glace n'a aucune capacité de rétention de
                                 # l'eau, alors la fonte dépend de la disponibilité
@@ -1452,9 +1312,7 @@ def mdj_alt(  # noqa: C901
                                 # -------------------------------
                                 # Ajustement du bilan énergétique
                                 # -------------------------------
-                                energie_glace = energie_glace - (
-                                    fonte_glace * rho_w * chaleur_latente_fusion
-                                )
+                                energie_glace = energie_glace - (fonte_glace * rho_w * chaleur_latente_fusion)
 
         else:  # S'il n'y a ni neige au sol ni précipitations neigeuses sur ce pas de temps.
             eau_surface = pluie
@@ -1479,54 +1337,32 @@ def mdj_alt(  # noqa: C901
                         # -------------------------------------------------------
                         if tmoy_glace < temperature_de_fonte[i_z]:
                             # Estimation de la température de la glace
-                            tglace = energie_glace / (
-                                eeg[i_g]
-                                * capacite_thermique_massique_eau_solide
-                                * rho_w
-                            )
+                            tglace = energie_glace / (eeg[i_g] * capacite_thermique_massique_eau_solide * rho_w)
 
                             # Estimation de l'erreur pour le calcul de la
                             # température de la glace
-                            denglace = (
-                                0.917  # densité fixée à 0.917, glace normale à 0 degré
-                            )
-                            alpha = conductivite_glace / (
-                                denglace
-                                * rho_w
-                                * capacite_thermique_massique_eau_solide
-                            )
-                            erf = calcul_erf(
-                                (eeg[i_g] / denglace) / (2 * np.sqrt(alpha * pdts))
-                            )
+                            denglace = 0.917  # densité fixée à 0.917, glace normale à 0 degré
+                            alpha = conductivite_glace / (denglace * rho_w * capacite_thermique_massique_eau_solide)
+                            erf = calcul_erf((eeg[i_g] / denglace) / (2 * np.sqrt(alpha * pdts)))
 
                             # Température de la glace corrigée
                             tglace = tmoy_glace + (tglace - tmoy_glace) * erf
 
                             # Mise é jour de l'énergie contenue dans la glace selon sa température estimée
-                            energie_glace = (
-                                tglace
-                                * eeg[i_g]
-                                * rho_w
-                                * capacite_thermique_massique_eau_solide
-                            )
+                            energie_glace = tglace * eeg[i_g] * rho_w * capacite_thermique_massique_eau_solide
 
                         # --------------------------------------------------------
                         # Ajustement du bilan énergétique selon la radiation et la
                         # température moyenne
                         # --------------------------------------------------------
-                        indice_radiation = (
-                            1.15 - 0.4 * np.exp(-0.38 * derniere_neige)
-                        ) * (soleil / 0.52) ** 0.33
+                        indice_radiation = (1.15 - 0.4 * np.exp(-0.38 * derniere_neige)) * (soleil / 0.52) ** 0.33
                         albedo_glace = 0.6
 
                         # -------------------------------------------------
                         # Ajustement du bilan énergétique selon le gradient
                         # géothermique
                         # -------------------------------------------------
-                        energie_glace = (
-                            energie_glace
-                            + (taux_fonte_ns * duree) * rho_w * chaleur_latente_fusion
-                        )
+                        energie_glace = energie_glace + (taux_fonte_ns * duree) * rho_w * chaleur_latente_fusion
 
                         # -----------------------------------------------------------
                         # Détermination de la fonte potentielle si le couvert est mûr
@@ -1536,12 +1372,7 @@ def mdj_alt(  # noqa: C901
                         # (1995) et Singh et al (1999).
                         if tmoy_glace > temperature_de_fonte[i_z]:
                             potentiel_fonte = (
-                                1.5
-                                * taux_de_fonte[i_z]
-                                * duree
-                                * (tmoy_glace - temperature_de_fonte[i_z])
-                                * indice_radiation
-                                * (1 - albedo_glace)
+                                1.5 * taux_de_fonte[i_z] * duree * (tmoy_glace - temperature_de_fonte[i_z]) * indice_radiation * (1 - albedo_glace)
                             )
                         else:
                             potentiel_fonte = 0
@@ -1549,9 +1380,7 @@ def mdj_alt(  # noqa: C901
                         # --------------------------------
                         # Mise é jour du bilan énergétique
                         # --------------------------------
-                        energie_glace = energie_glace + (
-                            potentiel_fonte * rho_w * chaleur_latente_fusion
-                        )
+                        energie_glace = energie_glace + (potentiel_fonte * rho_w * chaleur_latente_fusion)
 
                         # =======================================
                         # Calcul de la fonte selon le mûrissement
@@ -1559,9 +1388,7 @@ def mdj_alt(  # noqa: C901
                         if energie_glace > 0:  # La glace est mûre
                             # Estimation de la glace pouvant fondre selon son niveau
                             # d'énergie
-                            potentiel_fonte = (
-                                energie_glace / chaleur_latente_fusion / rho_w
-                            )
+                            potentiel_fonte = energie_glace / chaleur_latente_fusion / rho_w
 
                             # La glace n'a aucune capcaité de rétention de
                             # l'eau, alors la fonte dépend de la disponibilité
@@ -1578,9 +1405,7 @@ def mdj_alt(  # noqa: C901
                             # -------------------------------
                             # Ajustement du bilan énergétique
                             # -------------------------------
-                            energie_glace = energie_glace - (
-                                fonte_glace * rho_w * chaleur_latente_fusion
-                            )
+                            energie_glace = energie_glace - (fonte_glace * rho_w * chaleur_latente_fusion)
 
         # ====================================================
         # Récupération des variables simulées pour chaque zone
@@ -1598,30 +1423,16 @@ def mdj_alt(  # noqa: C901
         # Variables propres é chaque zone d'occupation
         # --------------------------------------------
         #                                                               'mdj'                                 'alt'
-        etat[modules["een"]]["neige_au_sol"][
-            i_z
-        ] = neige_au_sol  # Ex1.: [0.0635 0.0655 0.0655]           [0.1044 0.1044 0.1044 0.1035 0.1019]
-        etat[modules["een"]]["couvert_neige"][
-            i_z
-        ] = couvert_neige  # Ex1.: [0.3566 0.3612 0.3612]           [0.4725 0.4667 0.4609 0.4528 0.4429]
-        etat[modules["een"]]["densite_neige"][
-            i_z
-        ] = dennei  # Ex1.: [0.1780 0.1813 0.1813]           [0.2210 0.2236 0.2264 0.2286 0.2300]
-        etat[modules["een"]]["fonte"][
-            i_z
-        ] = fonte  # Ex1.: [0 0 0]                          [0 0 0 0 0]
-        etat[modules["een"]]["albedo_neige"][
-            i_z
-        ] = albedo_neige  # Ex1.: [0.7453 0.7453 0.7453]           [0.7453 0.7453 0.7453 0.7453 0.7453]
-        etat[modules["een"]]["energie_neige"][
-            i_z
-        ] = energie_neige  # Ex1.: [-9.85e+05 -1.0128e+06 -1.08e+06] [-1.88e+06 -1.82e+06 -1.76e+06 -1.69e+06 -1.63e+06]
-        etat[modules["een"]]["sol"][
-            i_z
-        ] = sol  # (en cm)            # Ex1.: [2.4932 2.4888 2.4888]           [0.7829 0.7835 0.7840 0.7844 0.7847]
-        etat[modules["een"]]["gel"][
-            i_z
-        ] = gel  # (en cm)            # Ex1.: [0.0351 0.0395 0.0395]            [0.0226 0.0220 0.0215 0.0211 0.0208]
+        etat[modules["een"]]["neige_au_sol"][i_z] = neige_au_sol  # Ex1.: [0.0635 0.0655 0.0655]           [0.1044 0.1044 0.1044 0.1035 0.1019]
+        etat[modules["een"]]["couvert_neige"][i_z] = couvert_neige  # Ex1.: [0.3566 0.3612 0.3612]           [0.4725 0.4667 0.4609 0.4528 0.4429]
+        etat[modules["een"]]["densite_neige"][i_z] = dennei  # Ex1.: [0.1780 0.1813 0.1813]           [0.2210 0.2236 0.2264 0.2286 0.2300]
+        etat[modules["een"]]["fonte"][i_z] = fonte  # Ex1.: [0 0 0]                          [0 0 0 0 0]
+        etat[modules["een"]]["albedo_neige"][i_z] = albedo_neige  # Ex1.: [0.7453 0.7453 0.7453]           [0.7453 0.7453 0.7453 0.7453 0.7453]
+        etat[modules["een"]]["energie_neige"][i_z] = (
+            energie_neige  # Ex1.: [-9.85e+05 -1.0128e+06 -1.08e+06] [-1.88e+06 -1.82e+06 -1.76e+06 -1.69e+06 -1.63e+06]
+        )
+        etat[modules["een"]]["sol"][i_z] = sol  # (en cm)            # Ex1.: [2.4932 2.4888 2.4888]           [0.7829 0.7835 0.7840 0.7844 0.7847]
+        etat[modules["een"]]["gel"][i_z] = gel  # (en cm)            # Ex1.: [0.0351 0.0395 0.0395]            [0.0226 0.0220 0.0215 0.0211 0.0208]
 
     # ----------------------------------------------------------------------
     # Moyennes pondérées au bassin selon les proportions occupées par chaque
@@ -1633,19 +1444,11 @@ def mdj_alt(  # noqa: C901
     etr[1] = np.sum(evapo_eau_neige[:] * occupation[:])  # Ex1.:  0        0
     demande_eau = np.sum(demande_eau[:] * occupation[:])  # Ex1.:  0        0
 
-    neige_au_sol = np.sum(
-        [a * b for a, b in zip(etat[modules["een"]]["neige_au_sol"][0:n], occupation)]
-    )  # Ex1.:  0.0653   0.1023
-    fonte = np.sum(
-        [a * b for a, b in zip(etat[modules["een"]]["fonte"][0:n], occupation)]
-    )  # Ex1.:  0        0
+    neige_au_sol = np.sum([a * b for a, b in zip(etat[modules["een"]]["neige_au_sol"][0:n], occupation, strict=False)])  # Ex1.:  0.0653   0.1023
+    fonte = np.sum([a * b for a, b in zip(etat[modules["een"]]["fonte"][0:n], occupation, strict=False)])  # Ex1.:  0        0
 
-    sol = np.sum(
-        [a * b for a, b in zip(etat[modules["een"]]["sol"][0:n], occupation)]
-    )  # Ex1.:  2.4892   0.7846
-    gel = np.sum(
-        [a * b for a, b in zip(etat[modules["een"]]["gel"][0:n], occupation)]
-    )  # Ex1.:  0.0392   0.0209
+    sol = np.sum([a * b for a, b in zip(etat[modules["een"]]["sol"][0:n], occupation, strict=False)])  # Ex1.:  2.4892   0.7846
+    gel = np.sum([a * b for a, b in zip(etat[modules["een"]]["gel"][0:n], occupation, strict=False)])  # Ex1.:  0.0392   0.0209
 
     # ----------------------------------------------------------------------
     # Ajustements des unités pour assurer une cohérence avec HSAMI pour les
@@ -1899,9 +1702,7 @@ def calcul_erf(x):
         raise Exception("Désolé, aucun nombre en dessous de zéro")
 
     t = 1 / (1 + 0.47047 * x)
-    valeur = 1 - (0.3480242 * t - 0.0958798 * t * t + 0.7478556 * t * t * t) * np.exp(
-        -x * x
-    )
+    valeur = 1 - (0.3480242 * t - 0.0958798 * t * t + 0.7478556 * t * t * t) * np.exp(-x * x)
 
     return valeur
 
@@ -1955,18 +1756,8 @@ def calcul_indice_radiation(jour, latitude, i_orientation_bv, pas_de_temps, pent
     k = np.arctan(pente)
     h = np.mod(495 - orientation * 45, 360) / rad1
 
-    ce1 = (
-        np.arcsin(np.sin(k) * np.cos(h) * np.cos(theta) + np.cos(k) * np.sin(theta))
-        * rad1
-    )
-    ce0 = (
-        np.arctan(
-            np.sin(h)
-            * np.sin(k)
-            / (np.cos(k) * np.cos(theta) - np.cos(h) * np.sin(k) * np.sin(theta))
-        )
-        * rad1
-    )
+    ce1 = np.arcsin(np.sin(k) * np.cos(h) * np.cos(theta) + np.cos(k) * np.sin(theta)) * rad1
+    ce0 = np.arctan(np.sin(h) * np.sin(k) / (np.cos(k) * np.cos(theta) - np.cos(h) * np.sin(k) * np.sin(theta))) * rad1
 
     theta1 = ce1 / rad1
     alpha = ce0 / rad1
@@ -2038,11 +1829,7 @@ def calcul_indice_radiation(jour, latitude, i_orientation_bv, pas_de_temps, pent
             * i_e2
             * (
                 (t2_hor_sim - t1_hor_sim) * np.sin(theta) * np.sin(decli)
-                + 1
-                / w
-                * np.cos(theta)
-                * np.cos(decli)
-                * (np.sin(w * t2_hor_sim) - np.sin(w * t1_hor_sim))
+                + 1 / w * np.cos(theta) * np.cos(decli) * (np.sin(w * t2_hor_sim) - np.sin(w * t1_hor_sim))
             )
         )
 
@@ -2055,11 +1842,7 @@ def calcul_indice_radiation(jour, latitude, i_orientation_bv, pas_de_temps, pent
             * i_e2
             * (
                 (t2_pte_sim - t1_pte_sim) * np.sin(theta1) * np.sin(decli)
-                + 1
-                / w
-                * np.cos(theta1)
-                * np.cos(decli)
-                * (np.sin(w * t2_pte_sim + alpha) - np.sin(w * t1_pte_sim + alpha))
+                + 1 / w * np.cos(theta1) * np.cos(decli) * (np.sin(w * t2_pte_sim + alpha) - np.sin(w * t1_pte_sim + alpha))
             )
         )
 
@@ -2115,23 +1898,19 @@ def albedo_een(albedo, drel, een, neige, pas_de_temps, pluie, tneige, *args):
         liquide = 0
 
     if st_neige > 0:  # // s'il y a deja de la neige au sol
-        alb_t_plus_1 = (1 - np.exp(-0.5 * eq_neige)) * 0.8 + (
-            1 - (1 - np.exp(-0.5 * eq_neige))
-        ) * (0.5 + (albedo - 0.5) * np.exp(-0.2 * pas_de_temps / 24.0 * (1 + liquide)))
+        alb_t_plus_1 = (1 - np.exp(-0.5 * eq_neige)) * 0.8 + (1 - (1 - np.exp(-0.5 * eq_neige))) * (
+            0.5 + (albedo - 0.5) * np.exp(-0.2 * pas_de_temps / 24.0 * (1 + liquide))
+        )
 
         if albedo < 0.5:
             beta2 = 0.2
         else:
             beta2 = 0.2 + (albedo - 0.5)
 
-        albedo = (1 - np.exp(-beta2 * st_neige)) * alb_t_plus_1 + (
-            1 - (1 - np.exp(-beta2 * st_neige))
-        ) * 0.15
+        albedo = (1 - np.exp(-beta2 * st_neige)) * alb_t_plus_1 + (1 - (1 - np.exp(-beta2 * st_neige))) * 0.15
 
     else:
-        albedo = (1 - np.exp(-0.5 * eq_neige)) * 0.8 + (
-            1 - (1 - np.exp(-0.5 * eq_neige))
-        ) * 0.15
+        albedo = (1 - np.exp(-0.5 * eq_neige)) * 0.8 + (1 - (1 - np.exp(-0.5 * eq_neige))) * 0.15
 
     return albedo
 

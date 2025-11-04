@@ -1,7 +1,6 @@
 """Fonction qui lit le fichier du projet, exécute et sauvegarde les sorties d'HSAMI."""
 
 from __future__ import annotations
-
 import datetime
 import json
 from pathlib import Path

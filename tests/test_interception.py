@@ -1,4 +1,3 @@
-import sys
 import unittest
 
 import numpy as np
@@ -172,7 +171,7 @@ class TestHsamiInterception(unittest.TestCase):
         self.assertEqual(apport_vertical.shape, (5,))
 
         # modules["sol"] = "3couches"
-        self.modules["sol"] == "3couches"
+        self.modules["sol"] = "3couches"
         eau_surface, demande_eau, etat, etr, apport_vertical = hsami_interception(
             self.nb_pas,
             self.jj,
@@ -192,7 +191,7 @@ class TestHsamiInterception(unittest.TestCase):
         self.assertEqual(apport_vertical.shape, (5,))
 
         # Données de EEN
-        self.modules["sol"] == "hsami"
+        self.modules["sol"] = "hsami"
         self.meteo = {
             "bassin": [-3.3, 1.5, 2.3, 0.0, 0.5, 19.3],
             "reservoir": [-3.3, 1.5, 2.0, 0.0, 0.5, 19.3],
@@ -771,9 +770,7 @@ class TestHsamiInterception(unittest.TestCase):
             "bassin": [3.3, 15.5, 12.3, 0.0, 0.5, -1],
             "reservoir": [3.3, 15.5, 12.0, 0.0, 0.5, -1],
         }
-        result = pluie_neige(
-            self.t_max, self.t_min, self.pluie / 100 + self.neige / 100
-        )
+        result = pluie_neige(self.t_max, self.t_min, self.pluie / 100 + self.neige / 100)
         self.assertIsNotNone(result)
 
         # isinstance(prec, list) | isinstance(prec, np.ndarray): line 2185
