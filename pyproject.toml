@@ -174,7 +174,7 @@ values = [
 ]
 
 [tool.codespell]
-ignore-words-list = "ajustement,astroid,avance,calculs,celle,celcius,complet,constitue,comparaison,correspondant,fixe,fonction,fonctions,formule,horizontale,infilitration,initiales,invalide,lamda,normale,parametres,potentiel,processus,projet,raison,reste,socio-economic,somme,thirdparty"
+ignore-words-list = "ajustement,astroid,avance,calculs,celle,celcius,complet,constitue,comparaison,composants,correspondant,fixe,fonction,fonctions,formule,horizontale,infilitration,initiales,invalide,lamda,normale,parametres,potentiel,processus,projet,raison,reste,socio-economic,somme,thirdparty"
 skip = "docs/notebooks/*.ipynb,docs/notebooks/*.rst,data/*.ipynb"
 
 [tool.coverage.paths]
