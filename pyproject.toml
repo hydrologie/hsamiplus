@@ -82,6 +82,9 @@ classifiers = [
 dynamic = ["description", "version"]
 dependencies = [
   "numpy >=1.25",
+  "pandas >=2.2.0",
+  "scipy >=1.10.0",
+  "rich >=12.3.0",
   "typer >=0.24.1"
 ]
 
