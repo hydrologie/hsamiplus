@@ -44,7 +44,7 @@ jobs:
 
           # Fetch existing comments
           COMMENTS=$(gh api repos/$REPO/issues/$PR_NUMBER/comments)
- 
+
           # Find warning comment ID
           WARNING_COMMENT_ID=$(echo "$COMMENTS" | jq -r \
             '.[] | select(.user.login=="github-actions[bot]") | select(.body | contains("'"$WARNING_TEXT"'")) | .id' | head -n 1)
