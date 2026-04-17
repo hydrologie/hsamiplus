@@ -1,4 +1,4 @@
-name: "Bump Patch Version"
+name: "Bump Version"
 
 on:
   push:
@@ -19,6 +19,7 @@ on:
       - CI/**/*.in
       - CI/**/*.py
       - CI/**/*.txt
+      - CITATION.cff
       - CODE_OF_CONDUCT.md
       - CONTRIBUTING.rst
       - Makefile
@@ -29,7 +30,7 @@ on:
       - environment.yml
       - pyproject.toml
       - tests/**.py
-      - tox.ini
+      - tox.toml
       - src/hsamiplus/__init__.py
   workflow_dispatch:
 
@@ -38,10 +39,14 @@ permissions:
 
 jobs:
   bump_patch_version:
-    name: Bumpversion Patch
+    name: Bump build/patch version
     runs-on: ubuntu-latest
+    environment: automation
     permissions:
       actions: read
+    strategy:
+      matrix:
+        python-version: [ "3.13" ]
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -67,10 +72,10 @@ jobs:
           persist-credentials: false
           token: ${{ steps.token_generator.outputs.token }}
 
-      - name: Set up Python3
+      - name: Set up Python${{ matrix.python-version }}
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
-          python-version: "3.x"
+          python-version: ${{ matrix.python-version }}
 
       - name: Import GPG Key
         uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
