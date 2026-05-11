@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/Ouranosinc/cookiecutter-pypackage",
-  "commit": "66708e5e15f00caaaaf1748bf0a7e041bc5c6243",
+  "commit": "5b62e2c2d1cf5d779f1cd4a59f3be4c20215be16",
   "checkout": null,
   "context": {
     "cookiecutter": {
@@ -20,10 +20,22 @@
       "command_line_interface": "Typer",
       "create_author_file": "y",
       "open_source_license": "BSD license",
+      "ai_tools_policy": "Standard",
       "generated_with_cruft": "y",
       "__gh_slug": "https://github.com/hydrologie/hsamiplus",
+      "_copy_without_render": [
+        ".github/workflows/auto-accept-ci-changes.yml",
+        ".github/workflows/cache-cleaner.yml",
+        ".github/workflows/codeql.yml",
+        ".github/workflows/dependency-review.yml",
+        ".github/workflows/label.yml",
+        ".github/workflows/publish-pypi.yml",
+        ".github/workflows/scorecard.yml",
+        ".github/workflows/tag-testpypi.yml",
+        ".github/workflows/workflow-warning.yml"
+      ],
       "_template": "https://github.com/Ouranosinc/cookiecutter-pypackage",
-      "_commit": "66708e5e15f00caaaaf1748bf0a7e041bc5c6243"
+      "_commit": "5b62e2c2d1cf5d779f1cd4a59f3be4c20215be16"
     }
   },
   "directory": null

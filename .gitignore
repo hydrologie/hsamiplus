@@ -1,4 +1,5 @@
 # HSAMIPLUS-specific
+data/output_*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -44,6 +45,7 @@ htmlcov/
 .coverage.*
 .cache
 nosetests.xml
+coverage.lcov
 coverage.xml
 *.cover
 .hypothesis/
