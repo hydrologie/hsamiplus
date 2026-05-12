@@ -20,6 +20,11 @@ Welcome to hsamiplus's documentation!
 
    apidoc/modules
 
+.. toctree::
+   :caption: GitHub Repository
+
+   hydrologie/hsamiplus <https://github.com/hydrologie/hsamiplus>
+
 Indices and tables
 ==================
 * :ref:`genindex`
