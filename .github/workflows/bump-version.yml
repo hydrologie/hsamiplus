@@ -49,7 +49,7 @@ jobs:
         python-version: [ "3.13" ]
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo: true
           egress-policy: block
@@ -61,7 +61,7 @@ jobs:
 
       - name: Generate App Token
         id: token_generator
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app-id: ${{ secrets.HYDROLOGIE_HELPER_BOT_ID }}
           private-key: ${{ secrets.HYDROLOGIE_HELPER_BOT_KEY }}
@@ -103,7 +103,7 @@ jobs:
           echo "new_version=$(bump-my-version show current_version)"
 
       - name: Push Changes
-        uses: ad-m/github-push-action@77c5b412c50b723d2a4fbc6d71fb5723bcd439aa # v1.0.0
+        uses: ad-m/github-push-action@4cc74773234f74829a8c21bc4d69dd4be9cfa599 # v1.1.0
         with:
           branch: ${{ github.ref }}
           force: false
