@@ -20,6 +20,15 @@ Changes
     * `tox` now uses the TOML spec for configuration.
     * `Makefile` now handles more dependency management operations.
     * Added generative AI contribution information and model guidance files (`AGENTS.md` and `AI_POLICY.md`).
+* `hsamiplus` now has guidance documents on acceptable usages of AI and the expected methods of AI usage disclosure. See the documentation for more details. (#114).
+* Updated the cookiecutter template to use the latest commit. (#114):
+    * Adjusted the permissions for some workflows to address security issues.
+    * Added the new "standard" AI disclosure guidance for code contributions.
+    * Updated the ReadTheDocs configuration to use newer OS and conda images.
+    * Modified ``make servedocs`` to use `sphinx-autobuild` (``make livehtml``).
+    * Added guidance for maintainers on git commit signing and immutable releases.
+    * Adjusted the source distribution inclusion/exclusion list.
+    * Set `bump-my-version` to sign tags by default.
 
 Fixes
 ^^^^^
