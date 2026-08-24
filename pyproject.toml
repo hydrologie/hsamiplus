@@ -1,19 +1,69 @@
 [build-system]
-requires = ["flit_core >=3.12.0,<4"]
+requires = ["flit_core >=3.11.0,<4"]
 build-backend = "flit_core.buildapi"
+
+[project]
+name = "hsamiplus"
+authors = [
+  {name = "Didier Haguma", email = "dhaguma@hotmail.com"}
+]
+maintainers = [
+  {name = "Didier Haguma", email = "dhaguma@hotmail.com"},
+  {name = "Trevor James Smith", email = "smith.trevorj@ouranos.ca"}
+]
+readme = {file = "README.rst", content-type = "text/x-rst"}
+requires-python = ">=3.11.0"
+keywords = ["hsamiplus"]
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Developers",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Typing :: Typed"
+]
+dynamic = ["description", "version"]
+dependencies = [
+  "numpy >=1.25",
+  "pandas >=2.2.0",
+  "rich >=14.3",
+  "scipy >=1.10.0",
+  "typer >=0.24.1"
+]
+
+[project.optional-dependencies]
+extras = []
+
+[project.scripts]
+hsamiplus = "hsamiplus.cli:app"
+
+[project.urls]
+# "Homepage" = "https://hsamiplus.readthedocs.io/"
+# "Changelog" = "https://hsamiplus.readthedocs.io/en/stable/changelog.html"
+# "About Ouranos" = "https://ouranos.ca/en/"
+"Issue tracker" = "https://github.com/hydrologie/hsamiplus/issues"
+"Source" = "https://github.com/hydrologie/hsamiplus"
 
 [dependency-groups]
 lint = [
   # Linting tools
-  "codespell >=2.4.2",
+  "codespell >=2.4.3",
   "deptry >=0.25.1",
   "flake8 >=7.3.0",
   "flake8-rst-docstrings >=0.4.0",
-  "mypy >=1.20.0",
+  "mypy >=2.3.0",
   "numpydoc >=1.10.0",
   "pylint >=4.0.4",
-  "ruff >=0.15.9",
-  "vulture >=2.14",
+  "ruff >=0.16.3",
+  "vulture >=2.16",
   "yamllint >=1.38.0"
 ]
 test = [
@@ -41,66 +91,17 @@ tox = [
 ]
 dev = [
   # Development and testing tools
-  "bump-my-version >=1.3.0",
+  "bump-my-version >=1.5.1",
+  "flit >=3.12.0,<4.0",
+  "flit_core >=3.12.0,<4.0",
   "pip >=26.0.1",
-  "prek >=0.3.0",
+  "prek >=0.4.0",
   "watchdog >=6.0.0",
   {include-group = "docs"},
   {include-group = "lint"},
   {include-group = "test"},
   {include-group = "tox"}
 ]
-
-[project]
-name = "hsamiplus"
-authors = [
-  {name = "Didier Haguma", email = "dhaguma@hotmail.com"}
-]
-maintainers = [
-  {name = "Didier Haguma", email = "dhaguma@hotmail.com"},
-  {name = "Trevor James Smith", email = "smith.trevorj@ouranos.ca"}
-]
-readme = {file = "README.rst", content-type = "text/x-rst"}
-requires-python = ">=3.10.0"
-keywords = ["hsamiplus"]
-license = "BSD-3-Clause"
-license-files = ["LICENSE"]
-classifiers = [
-  "Development Status :: 2 - Pre-Alpha",
-  "Intended Audience :: Developers",
-  "Natural Language :: English",
-  "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Programming Language :: Python :: 3.14",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Typing :: Typed"
-]
-dynamic = ["description", "version"]
-dependencies = [
-  "numpy >=1.25",
-  "pandas >=2.2.0",
-  "rich >=14.0",
-  "scipy >=1.10.0",
-  "typer >=0.24.1"
-]
-
-[project.optional-dependencies]
-extras = []
-
-[project.scripts]
-hsamiplus = "hsamiplus.cli:app"
-
-[project.urls]
-# "Homepage" = "https://hsamiplus.readthedocs.io/"
-# "Changelog" = "https://hsamiplus.readthedocs.io/en/stable/changelog.html"
-# "About Ouranos" = "https://ouranos.ca/en/"
-"Issue tracker" = "https://github.com/hydrologie/hsamiplus/issues"
-"Source" = "https://github.com/hydrologie/hsamiplus"
 
 [tool]
 
@@ -180,7 +181,7 @@ values = [
 
 [tool.codespell]
 ignore-words-list = "ajustement,astroid,avance,calculs,celle,celcius,complet,constitue,comparaison,composants,correspondant,fixe,fonction,fonctions,formule,horizontale,infilitration,initiales,invalide,lamda,normale,parametres,potentiel,processus,projet,raison,reste,socio-economic,somme,thirdparty"
-skip = "docs/notebooks/*.ipynb,docs/notebooks/*.rst,data/*.ipynb"
+skip = "docs/_build,docs/notebooks/*.ipynb,docs/notebooks/*.rst,data/*.ipynb"
 
 [tool.coverage.paths]
 source = ["src/hsamiplus/", "*/site-packages/hsamiplus/"]
@@ -195,7 +196,7 @@ skip = []
 
 [tool.deptry]
 extend_exclude = ["extras"]
-pep621_dev_dependency_groups = ["extras"]
+known_first_party = ["hsamiplus"]
 
 [tool.flit.sdist]
 include = [
@@ -231,7 +232,6 @@ exclude = [
   ".readthedocs.yml",
   ".yamllint.yaml",
   ".zizmor.yml",
-  "CI/requirements_ci.*",
   "docs/_*",
   "docs/apidoc/modules.rst",
   "docs/apidoc/hsamiplus*.rst",
@@ -240,7 +240,7 @@ exclude = [
 
 [tool.mypy]
 files = "."
-python_version = "3.10"
+python_version = "3.11"
 show_error_codes = true
 strict = true
 warn_no_return = true
@@ -362,6 +362,9 @@ max-doc-length = 180
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
+
+[tool.tomlsort]
+sort_first = ["build-system", "project"]
 
 [tool.vulture]
 exclude = []
