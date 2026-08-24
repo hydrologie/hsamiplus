@@ -29,6 +29,9 @@ Changes
     * Added guidance for maintainers on git commit signing and immutable releases.
     * Adjusted the source distribution inclusion/exclusion list.
     * Set `bump-my-version` to sign tags by default.
+    * Dropped support for Python 3.10.
+    * Added AI agent contribution guidelines.
+    * Adopted `dependency-grouups` (PEP 735).
 
 Fixes
 ^^^^^
