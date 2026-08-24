@@ -72,7 +72,7 @@ lint: install-lint ## check style
 	python -m numpydoc lint src/hsamiplus/**.py
 	python -m vulture src/hsamiplus tests
 	codespell src/hsamiplus tests docs
-	python -m deptry src
+	python -m deptry src/hsamiplus
 	python -m yamllint --config-file=.yamllint.yaml src/hsamiplus
 
 test: install-test ## run tests quickly with the default Python
@@ -109,7 +109,7 @@ ifndef READTHEDOCS
 endif
 
 servedocs: autodoc ## compile the docs while watching for changes
-	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
+	$(MAKE) -C docs livehtml
 
 dist: clean ## builds source and wheel package
 	python -m flit build

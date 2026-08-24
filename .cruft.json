@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/Ouranosinc/cookiecutter-pypackage",
-  "commit": "5b62e2c2d1cf5d779f1cd4a59f3be4c20215be16",
+  "commit": "fb9ad7da9da9c2ac09187f9518a17e98727beeb5",
   "checkout": null,
   "context": {
     "cookiecutter": {
@@ -35,7 +35,7 @@
         ".github/workflows/workflow-warning.yml"
       ],
       "_template": "https://github.com/Ouranosinc/cookiecutter-pypackage",
-      "_commit": "5b62e2c2d1cf5d779f1cd4a59f3be4c20215be16"
+      "_commit": "fb9ad7da9da9c2ac09187f9518a17e98727beeb5"
     }
   },
   "directory": null
