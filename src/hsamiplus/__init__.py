@@ -34,7 +34,7 @@
 
 __author__ = """Didier Haguma"""
 __email__ = "dhaguma@hotmail.com"
-__version__ = "0.1.1-dev.2"
+__version__ = "0.1.1-dev.3"
 
 from .hsami2 import hsami2
 from .hsami_input import make_project
