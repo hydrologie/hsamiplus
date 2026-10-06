@@ -5,13 +5,13 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "hsamiplus"
 authors = [
-  {name = "Didier Haguma", email = "dhaguma@hotmail.com"}
+  { name = "Didier Haguma", email = "dhaguma@hotmail.com" }
 ]
 maintainers = [
-  {name = "Didier Haguma", email = "dhaguma@hotmail.com"},
-  {name = "Trevor James Smith", email = "smith.trevorj@ouranos.ca"}
+  { name = "Didier Haguma", email = "dhaguma@hotmail.com" },
+  { name = "Trevor James Smith", email = "smith.trevorj@ouranos.ca" }
 ]
-readme = {file = "README.rst", content-type = "text/x-rst"}
+readme = { file = "README.rst", content-type = "text/x-rst" }
 requires-python = ">=3.11.0"
 keywords = ["hsamiplus"]
 license = "BSD-3-Clause"
@@ -97,10 +97,10 @@ dev = [
   "pip >=26.0.1",
   "prek >=0.4.0",
   "watchdog >=6.0.0",
-  {include-group = "docs"},
-  {include-group = "lint"},
-  {include-group = "test"},
-  {include-group = "tox"}
+  { include-group = "docs" },
+  { include-group = "lint" },
+  { include-group = "test" },
+  { include-group = "tox" }
 ]
 
 [tool]
